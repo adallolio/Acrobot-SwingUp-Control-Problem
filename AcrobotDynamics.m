@@ -1,6 +1,4 @@
 function [ states ] = AcrobotDynamics(M,C,G,K,sat,Var,qdes)
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
 
 kp = K(1);
 kd = K(2);
