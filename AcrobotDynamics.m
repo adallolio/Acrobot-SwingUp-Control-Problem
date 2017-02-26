@@ -1,4 +1,4 @@
-function [ states ] = AcrobotDynamics( M, C, G, K, controller_type, sat, Var, qdes)
+function [ states ] = AcrobotDynamics(M,C,G,K,sat,Var,qdes)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 

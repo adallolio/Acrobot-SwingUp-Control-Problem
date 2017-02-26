@@ -1,4 +1,4 @@
-function [] = Acrobot_PhasePortrait( m1, m2, I1, I2, lc1, lc2, l1, l2, g, controller_type )
+function [] = Acrobot_PhasePortrait(m1,m2,I1,I2,lc1,lc2,l1,l2,g)
     if strcmp(controller_type,'noncollocated') 
         % NON-COLLOCATED case
         

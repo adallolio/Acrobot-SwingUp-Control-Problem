@@ -11,7 +11,7 @@
 clc; close all; clear all;
 
 % Choose collocated or non-collocated implementation.
-controller_type = 'noncollocated'; % Choose: noncollocated, collocated, none
+acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated, none
 % 1) noncollocated controller is really crazy and can stabilize to any target
 % angle! The downside is that it requires basically boundless torque.
 % 2) collocated controller does a reasonable "pumping" motion for swing-up.
@@ -21,71 +21,69 @@ controller_type = 'noncollocated'; % Choose: noncollocated, collocated, none
 
 % Acrobot Parameters
 
-syms q1 q2 q1d q2d q1dd q2dd v tau kd kp real;
+%syms q1 q2 q1d q2d q1dd q2dd v tau kd kp real;
 
 % Acrobot parameters
-m1 = 1.0;
-m2 = 1.0;
-I1 = 0.2;
-I2 = 1.0;
-lc1 = 0.5;
-lc2 = 0.5;
-l1 = 1.0;
-l2 = 1.0;
-d1 = l1/2; % Center of mass distance along link 1 from the fixed joint.
-d2 = l2/2; % Center of mass distance along link 2 from the fixed joint.
-g0 = 9.81;
+acr.m1 = 1.0;
+acr.m2 = 1.0;
+acr.I1 = 0.2;
+acr.I2 = 1.0;
+acr.lc1 = 0.5;
+acr.lc2 = 0.5;
+acr.l1 = 1.0;
+acr.l2 = 1.0;
+acr.d1 = acr.l1/2; % Center of mass distance along link 1 from the fixed joint.
+acr.d2 = acr.l2/2; % Center of mass distance along link 2 from the fixed joint.
+acr.g0 = 9.81;
 % Actuator Saturation
-saturation_limit = 10000;
+acr.saturation_limit = 10000;
+duration = 1;
 
-
-T1 = 0;
-T2 = 0;
+acr.T1 = 0;
+acr.T2 = 0;
 
 %q = [q1;q2];
 %qD = [q1d;q2d];
 %qDD = [q1dd;q2dd];
 
-q1 =0; q2 = 0; q1d = 0; q2d = 0;
-
 % [q1, q2, q1d, q2d]
 init = [-pi/2    0    0   0]';
 
 % For link 1 linearization (noncollocated):
-kd1 = 6.4;
-kp1 = 15;
-target_1 = pi/2; % Target stabilization angle
+acr.goal = pi/2;
+acr.kd1 = 6.4;
+acr.kp1 = 15;
 
 % For link 2 linearization (collocated):
-alpha = pi/6; % "pumping" angle
-kd2 = 200;
-kp2 = 2000;
+acr.alpha = pi/6; % "pumping" angle
+acr.kd2 = 200;
+acr.kp2 = 2000;
+
+
+%% Acrobot dynamics
+%[M,C,G] = AcrobotDynamicsMatrices(acr,init);
+options1 = odeset('AbsTol', 1e-6,'RelTol',1e-6);
+[tarray, zarray] = ode15s(@CLsystem, [0 duration], init, options1, acr);
 
 %{
-%% Acrobot dynamics
-[M,C,G] = AcrobotDynamicsMatrices(m1, m2, I1, I2, lc1, lc2, l1, l2, g0, q1, q2, q1d, q2d);
-
 %% Controllers
 if strcmp(controller_type,'noncollocated') 
     % NON-COLLOCATED linearization
     q1des = pi/2;
-    Tc = TorqueController1(M, C, G, [kp1, kd1], q1, q1d, q1des);
+    Tc = TorqueController(M, C, G, [kp1, kd1], q1, q1d, q1des);
 elseif strcmp(controller_type,'collocated') 
     % COLLOCATED linearization
     alpha = 1;
     q2des = 2*alpha/(pi*atan(q1d));
-    Tc = TorqueController2(M, C, G, [kp2, kd2], q2, q2d, q2des);
+    Tc = TorqueController(M, C, G, [kp2, kd2], q2, q2d, q2des);
 end
 
 %% Dynamics 
-[states] = AcrobotDynamics( M, C, G, [kp1, kd1], controller_type, saturation_limit, [q1, q1d, q2, q2d], pi/2);
+[states] = AcrobotDynamics(M,C,G,[kp1,kd1],saturation_limit,[q1,q1d,q2,q2d],pi/2);
 
 %% Phase portrait
-%}
-Acrobot_PhasePortrait(m1, m2, I1, I2, lc1, lc2, l1, l2, g0, controller_type);
 
-
-%{
+Acrobot_PhasePortrait(m1,m2,I1,I2,lc1,lc2,l1,l2,g0);
 
 
 %Assemble the state vector derivatives.
