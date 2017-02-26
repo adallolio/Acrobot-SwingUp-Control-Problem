@@ -62,22 +62,30 @@ acr.kp2 = 2000;
 
 %% Acrobot dynamics
 %[M,C,G] = AcrobotDynamicsMatrices(acr,init);
-options1 = odeset('AbsTol', 1e-6,'RelTol',1e-6);
-[tarray, zarray] = ode15s(@CLsystem, [0 duration], init, options1, acr);
+options1 = odeset('AbsTol', 1e-3,'RelTol',1e-3);
+time =  1:1/4891:10;
+[tarray, zarray] = ode15s(@CLsystem,[0 duration], init, options1, acr);
 
-%{
+
 %% Controllers
-if strcmp(controller_type,'noncollocated') 
-    % NON-COLLOCATED linearization
-    q1des = pi/2;
-    Tc = TorqueController(M, C, G, [kp1, kd1], q1, q1d, q1des);
-elseif strcmp(controller_type,'collocated') 
-    % COLLOCATED linearization
-    alpha = 1;
-    q2des = 2*alpha/(pi*atan(q1d));
-    Tc = TorqueController(M, C, G, [kp2, kd2], q2, q2d, q2des);
-end
 
+Tc = ones(length(tarray),1);
+if strcmp(acr.controller_type,'noncollocated') 
+    % NON-COLLOCATED linearization
+    for i = 1:length(tarray)
+        q1des = acr.goal;
+        [M,C,G] = AcrobotDynamicsMatrices(acr,zarray(i,:));
+        Tc(i) = TorqueController(M, C, G, zarray(i,1), zarray(i,2), q1des, acr);
+    end
+elseif strcmp(acr.controller_type,'collocated') 
+    % COLLOCATED linearization
+    for i = 1:length(tarray)
+        q2des = acr.alpha*atan(zarray(i,2));
+        [M,C,G] = AcrobotDynamicsMatrices(acr,zarray(i,:));
+        Tc(i) = TorqueController(M, C, G, zarray(i,3), zarray(i,4), q2des, acr);
+    end
+end
+%{
 %% Dynamics 
 [states] = AcrobotDynamics(M,C,G,[kp1,kd1],saturation_limit,[q1,q1d,q2,q2d],pi/2);
 
