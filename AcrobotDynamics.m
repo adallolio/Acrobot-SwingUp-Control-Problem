@@ -20,7 +20,7 @@ if strcmp(controller_type,'noncollocated')
     q1d2 = 0.0;
     q2d2 = -((C(1)+G(1))+M(1,1)*(-kp*(q1-q1des)-kd*q1d))/M(1,2);
    
-elseif strcmp(controller_type,'collocated') 
+else
     % COLLOCATED case: Link 2 linearization
     q2des = qdes;
     Tc = TorqueController2(M, C, G, K, q2, q2d, q2des);
