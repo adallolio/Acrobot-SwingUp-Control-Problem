@@ -37,7 +37,7 @@ acr.d2 = acr.l2/2; % Center of mass distance along link 2 from the fixed joint.
 acr.g0 = 9.81;
 % Actuator Saturation
 acr.saturation_limit = 10000;
-duration = 1;
+duration = 2;
 
 acr.T1 = 0;
 acr.T2 = 0;
