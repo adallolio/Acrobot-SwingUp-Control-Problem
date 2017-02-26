@@ -17,19 +17,19 @@ q2des = acr.alpha*atan(q1d);
 if strcmp(acr.controller_type,'noncollocated')
         ni(1) = q1-q1des;
         ni(2) = q1d;
-        v1 = -acr.kp1*ni(1) - acr.kd1*ni(2);
         z(1) = q2;
         z(2) = q2d;
+        v1 = - acr.kp1*ni(1) - acr.kd1*ni(2);
         nid(1) = ni(2);
         nid(2) = v1;
         zd(1) = z(2);
-        zd(2) = (-1/M(1,2))*(C(1) + G(1) + M(1,1)*v1);
+        zd(2) = -(1/M(1,2))*(C(1) + G(1) + M(1,1)*v1);
 else
         ni(1) = q1;
         ni(2) = q1d;
-        v2 = -acr.kp2*z(1) - acr.kp2*z(2);
         z(1) = q2-q2des;
         z(2) = q2d;
+        v2 = - acr.kp2*z(1) - acr.kd2*z(2);
         zd(1) = z(2);
         zd(2) = v2;
         nid(1) = ni(2);

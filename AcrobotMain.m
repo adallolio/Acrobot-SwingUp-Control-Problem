@@ -62,8 +62,9 @@ acr.kp2 = 2000;
 
 %% Acrobot dynamics
 %[M,C,G] = AcrobotDynamicsMatrices(acr,init);
-options1 = odeset('AbsTol', 1e-6,'RelTol',1e-6);
+options1 = odeset('AbsTol', 1e-6,'RelTol',1e-3);
 [tarray, zarray] = ode15s(@CLsystem, [0 duration], init, options1, acr);
+
 
 %{
 %% Controllers
