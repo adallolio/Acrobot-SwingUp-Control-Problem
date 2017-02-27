@@ -14,6 +14,5 @@ q2d = vars(4);
 
     G = acr.g0*[(acr.m1*acr.lc1 + acr.m2*acr.l1)*cos(q1) + acr.m2*acr.lc2*cos(q1+q2);
             acr.m2*acr.lc2*cos(q1+q2)];
-
 end
 

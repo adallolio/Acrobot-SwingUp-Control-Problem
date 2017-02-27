@@ -37,8 +37,8 @@ acr.d2 = acr.l2/2; % Center of mass distance along link 2 from the fixed joint.
 acr.g0 = 9.81;
 % Actuator Saturation
 acr.saturation_limit = 10000;
-duration = 2;
-
+duration = 10;
+animationSpeed = 1;
 acr.T1 = 0;
 acr.T2 = 0;
 
@@ -62,19 +62,12 @@ acr.kp2 = 2000;
 
 %% Acrobot dynamics
 %[M,C,G] = AcrobotDynamicsMatrices(acr,init);
-<<<<<<< HEAD
+
 options1 = odeset('AbsTol', 1e-6,'RelTol',1e-3);
 [tarray, zarray] = ode15s(@CLsystem, [0 duration], init, options1, acr);
 
 
-%{
-=======
-options1 = odeset('AbsTol', 1e-3,'RelTol',1e-3);
-time =  1:1/4891:10;
-[tarray, zarray] = ode15s(@CLsystem,[0 duration], init, options1, acr);
 
-
->>>>>>> 6b9aea8099ec9df2e56ab59eaab163030266fd4b
 %% Controllers
 
 Tc = ones(length(tarray),1);
@@ -83,16 +76,25 @@ if strcmp(acr.controller_type,'noncollocated')
     for i = 1:length(tarray)
         q1des = acr.goal;
         [M,C,G] = AcrobotDynamicsMatrices(acr,zarray(i,:));
-        Tc(i) = TorqueController(M, C, G, zarray(i,1), zarray(i,2), q1des, acr);
+        Tc(i) = TorqueController(M, C, G, zarray(i,1), zarray(i,3), q1des, acr);
     end
 elseif strcmp(acr.controller_type,'collocated') 
     % COLLOCATED linearization
     for i = 1:length(tarray)
-        q2des = acr.alpha*atan(zarray(i,2));
+        q2des = acr.alpha*atan(zarray(i,3));
         [M,C,G] = AcrobotDynamicsMatrices(acr,zarray(i,:));
-        Tc(i) = TorqueController(M, C, G, zarray(i,3), zarray(i,4), q2des, acr);
+        Tc(i) = TorqueController(M, C, G, zarray(i,2), zarray(i,4), q2des, acr);
     end
 end
+
+Tc(Tc>acr.saturation_limit) = acr.saturation_limit;
+Tc(Tc<-acr.saturation_limit) = -acr.saturation_limit;
+
+
+energy = TotEnergy(acr.I1,acr.I2,acr.d1,acr.d2,acr.g0,acr.l1,acr.m1,acr.m2,zarray(:,1),zarray(:,3),zarray(:,2),zarray(:,4));
+
+Plotter
+
 %{
 %% Dynamics 
 [states] = AcrobotDynamics(M,C,G,[kp1,kd1],saturation_limit,[q1,q1d,q2,q2d],pi/2);

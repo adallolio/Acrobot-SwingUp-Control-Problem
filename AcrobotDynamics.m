@@ -11,7 +11,7 @@ q2d = Var(4);
 if strcmp(controller_type,'noncollocated') 
     % NON-COLLOCATED case: Link 1 linearization
     q1des = qdes;
-    Tc = TorqueController1(M, C, G, K, q1, q1d, q1des);
+    Tc = TorqueController(M, C, G, K, q1, q1d, q1des);
     
     % Accelerations
     % NOTE: I don't know from where to obtain q1d2
@@ -21,7 +21,7 @@ if strcmp(controller_type,'noncollocated')
 else
     % COLLOCATED case: Link 2 linearization
     q2des = qdes;
-    Tc = TorqueController2(M, C, G, K, q2, q2d, q2des);
+    Tc = TorqueController(M, C, G, K, q2, q2d, q2des);
     % Accelerations
     % NOTE: I don't know from where to obtain q2d2
     q1d2 = -((C(1)+G(1))+M(1,2)*(-kp*(q2-q2des)-kd*q2d))/M(1,1);
