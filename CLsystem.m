@@ -9,15 +9,12 @@ q1d = vars(3);
 q2 = vars(2);
 q2d = vars(4);
 
-q1des = acr.goal;
-q2des = acr.alpha*atan(q1d);
-
 [M,C,G] = AcrobotDynamicsMatrices(acr,vars);
 
 if strcmp(acr.controller_type,'noncollocated')
 
-
-        T = TorqueController(M, C, G, q1, q1d, q1des, acr);
+        qdes = acr.goal;
+        T = TorqueController(M, C, G, acr, q1, q1d, qdes);
 
         if T > acr.saturation_limit
                 T = acr.saturation_limit;
@@ -25,7 +22,7 @@ if strcmp(acr.controller_type,'noncollocated')
                 T = acr.saturation_limit;
         end
         
-        q1dd = ComputeAccel1(T,q1,q2,q1d);
+        q1dd = ComputeAccel1(q1,q2,q1d,q2d,qdes);
         q2dd = ComputeAccel2(q1,q2,q1d,q2d);
 
         %q1dd = -(100*sin(q2)*q1d^2 - 250*T + 981*cos(q1 + q2))/(50*(2*cos(q2) + 5));
@@ -46,7 +43,7 @@ if strcmp(acr.controller_type,'noncollocated')
 %}
         
 else
-
+        qdes = acr.alpha*atan(q1d);
         T = TorqueController(M, C, G, q2, q2d, q2des, acr);
 
         q1dd = -(100*sin(q2)*q1d^2 - 250*T + 981*cos(q1 + q2))/(50*(2*cos(q2) + 5));
