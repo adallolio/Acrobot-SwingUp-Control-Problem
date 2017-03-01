@@ -22,7 +22,7 @@ if strcmp(acr.controller_type,'noncollocated')
                 T = acr.saturation_limit;
         end
         
-        q1dd = ComputeAccel1(q1,q2,q1d,q2d,qdes);
+        q1dd = ComputeAccel1(q1,q2,q1d,q2d);
         q2dd = ComputeAccel2(q1,q2,q1d,q2d);
 
         %q1dd = -(100*sin(q2)*q1d^2 - 250*T + 981*cos(q1 + q2))/(50*(2*cos(q2) + 5));

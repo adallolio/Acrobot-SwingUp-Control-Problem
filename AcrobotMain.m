@@ -30,9 +30,8 @@ else
     T = TorqueController(M, C, G, acr)
 end
 pause
-DeriveAccel(M,C,G,T,acr);
 display('System Energy')
-E = DeriveEnergy(acr)
+[E,acc1,acc2] = DeriveEnAcc(acr)
 
 
 % [q1, q2, q1d, q2d] è giusto??
