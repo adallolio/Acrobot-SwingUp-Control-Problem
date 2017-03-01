@@ -21,6 +21,7 @@ AcrobotParameters;
 display('Acrobot Dynamics')
 [M,C,G] = AcrobotDynamicsMatrices(acr)
 pause
+
 display('Input Torque')
 if strcmp(acr.controller_type,'noncollocated')
     qdes = acr.goal;
@@ -30,7 +31,9 @@ else
     T = TorqueController(M, C, G, acr)
 end
 pause
+
 DeriveAccel(M,C,G,T,acr);
+
 display('System Energy')
 E = DeriveEnergy(acr)
 
