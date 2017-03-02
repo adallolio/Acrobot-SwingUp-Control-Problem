@@ -7,12 +7,8 @@
 
 close all
 
-%Playback speed:
-playback = animationSpeed;
-
-%Repeat button
-h = uicontrol('Style', 'pushbutton', 'String', 'Repeat',...
-    'Position', [10 20 75 50], 'Callback', 'Plotter');
+%Animation speed:
+move = animationSpeed;
 
 time = tarray;
 endtime = tarray(end);
@@ -33,26 +29,22 @@ link1 = patch(xdat1,ydat1, [0 0 0 0],'r');
 width2 = acr.l2*0.05;
 ydat2 = 0.5*width2*[-1 1 1 -1];
 xdat2 = acr.l2*[0 0 1 1];
-link2 = patch(xdat2,ydat2, [0 0 0 0],'b');
+link2 = patch(xdat2,ydat2, [0 0 0 0],'r');
 axis([-3.5 3.5 -3.6 3.6]);
 
-%Dots for the hinges:
-h1 = plot(0,0,'.k','MarkerSize',40); %First link anchor
-h2 = plot(0,0,'.k','MarkerSize',40); %link1 -> link2 hinge
-
-%Timer label:
-timer = text(-3.2,-3.2,'0.00','FontSize',28);
-hold off
+%Dots for the joints:
+h1 = plot(0,0,'.k','MarkerSize',40); 
+h2 = plot(0,0,'.k','MarkerSize',40); 
 
 %%%%%%%% 2nd Subplot -- the system energy %%%%%%%
 subplot(3,4,[3 4])
 hold on
-
+grid on
 %Find the desired energy when the system is balanced.
-energyPlot = plot(0,0,'b'); %Energy plot over time.
+energyPlot = plot(0,0,'k'); %Energy plot over time.
 % plot([0,endtime],[desEnergy,desEnergy],'r'); %The line showing the target energy
 
-axis([0,endtime,min(energy)-1,max(energy) + 1]); %size to fit energy bounds and timescale
+axis([0,endtime,min(energy),max(energy)]); %size to fit energy bounds and timescale
 
 xlabel('Time (s)','FontSize',16)
 ylabel('Energy (J)','FontSize',16)
@@ -60,9 +52,10 @@ ylabel('Energy (J)','FontSize',16)
 hold off
 
 %%%%%%%% 3rd Subplot -- the control torque %%%%%%%
-subplot(3,4,[7 8 11 12])
+subplot(3,4,[7 8])
 hold on
-torquePlot = plot(0,0,'r');
+grid on
+torquePlot = plot(0,0,'k');
 %axis([0,endtime,max(min(Tarray)-abs(min(Tarray))*0.1-0.1,-max(Tarray)),min(max(Tarray)*1.1,-min(Tarray)*1.1)]); %size to fit whatever output given
 xlim([0,endtime])
 ylim([min(Tc)-1, max(Tc)+1])
@@ -70,26 +63,38 @@ xlabel('Time (s)','FontSize',16)
 ylabel('Torque (Nm)','FontSize',16)
 hold off
 
+%%%%%%%% 4rd Subplot -- q1dd %%%%%%%
+subplot(3,4,[11 12])
+hold on
+grid on
+accelerationPlot1 = plot(0,0,'r');
+accelerationPlot2 = plot(0,0,'b');
+
+%axis([0,endtime,max(min(zarray(:,2))-abs(min(zarray(:,2)))*0.1-0.1,-max(zarray(:,2))),min(max(zarray(:,2))*1.1,-min(zarray(:,2))*1.1)]); %size to fit whatever output given
+xlim([0,endtime])
+ylim([-100,100])
+xlabel('Time (s)','FontSize',16)
+ylabel('Acceleration','FontSize',16)
+hold off
+
 %Make the whole window big for handy viewing:
 set(gcf, 'units', 'inches', 'position', [5 5 18 9])
 
 %Animation plot loop:
 tic %Start the clock
-while toc<endtime/playback
+while toc<endtime/move
     
-    %If i close the figure, this prevents the error message (anal
-    %programming)
+    %If i close the figure, this prevents the error message
     if ishandle(1) == 0
         break;
     end
     
-    tstar = playback*toc; %Get the time (used during this entire iteration)
-    %On screen timer.
-    set(timer,'string',strcat(num2str(tstar,3),'s'))
+    tstar = move*toc; %Get the time (used during this entire iteration)
+    
     zstar = interp1(time,zarray,tstar); %Interpolate data at this instant in time.
     
     %Rotation matrices to manipulate the vertices of the patch objects
-    %using theta1 and theta2 from the output state vector.
+    %using q1 and q2 from the output state vector.
     rot1 = [cos(zstar(1)), -sin(zstar(1)); sin(zstar(1)),cos(zstar(1))]*[xdat1;ydat1];
     set(link1,'xData',rot1(1,:))
     set(link1,'yData',rot1(2,:))
@@ -99,7 +104,7 @@ while toc<endtime/playback
     set(link2,'xData',rot2(1,:)+(rot1(1,3)+rot1(1,4))/2) %We want to add the midpoint of the far edge of the first link to all points in link 2.
     set(link2,'yData',rot2(2,:)+(rot1(2,3)+rot1(2,4))/2)
     
-    %Change the hinge dot location
+    %Change the joint dot location
     set(h2,'xData',(rot1(1,3)+rot1(1,4))/2)
     set(h2,'yData',(rot1(2,3)+rot1(2,4))/2)
     
@@ -108,9 +113,17 @@ while toc<endtime/playback
     set(energyPlot,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
     set(energyPlot,'yData',energy(plotInd))
     
-    %Make the power profile also plot out over time simultaneously.
+    %Make the torque profile also plot out over time simultaneously.
     set(torquePlot,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
     set(torquePlot,'yData',Tc(plotInd))
+
+    %Make the torque profile also plot out over time simultaneously.
+    set(accelerationPlot1,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
+    set(accelerationPlot1,'yData',acc1(plotInd))
+    set(accelerationPlot2,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
+    set(accelerationPlot2,'yData',acc2(plotInd))
+
+    legend('Link 1','Link 2'); 
     
     drawnow;
 end
