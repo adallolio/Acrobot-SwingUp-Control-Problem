@@ -31,12 +31,10 @@ else
     T = TorqueController(M, C, G, acr)
 end
 pause
-<<<<<<< HEAD
+
 
 DeriveAccel(M,C,G,T,acr);
 
-=======
->>>>>>> f79cf08805d0cc1b4e724fb099c89cd8c1e3c910
 display('System Energy')
 [E,acc1,acc2] = DeriveEnAcc(acr)
 
