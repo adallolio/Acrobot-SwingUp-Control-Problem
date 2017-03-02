@@ -2,16 +2,7 @@ function [acr] = AcrobotParameters(type)
 
 %	Acrobot Parameters function
 %	This file contains the acrobot parameters, saved into the acr structure.
-%  
 
-% Choose collocated or non-collocated implementation.
-acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated, none
-% 1) noncollocated controller is really crazy and can stabilize to any target
-% angle! The downside is that it requires basically boundless torque.
-% 2) collocated controller does a reasonable "pumping" motion for swing-up.
-% The downside is that it can't stabilize without some linear controller to
-% keep it at the top.
-% 3) none - no controller mode. Play around with the free pendulum.
 
 % Acrobot Parameters Selection
 
