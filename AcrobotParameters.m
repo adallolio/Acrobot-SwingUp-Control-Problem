@@ -15,6 +15,7 @@ acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated, none
 
 syms q1 q2 q1d q2d q1dd q2dd qdes real;
 
+
 % Acrobot parameters
 acr.m1 = 1.0;
 acr.m2 = 1.0;
@@ -27,6 +28,21 @@ acr.l2 = 1.0;
 acr.d1 = acr.l1/2; % Center of mass distance along link 1 from the fixed joint.
 acr.d2 = acr.l2/2; % Center of mass distance along link 2 from the fixed joint.
 acr.g0 = 9.81;
+
+%{
+syms m1 m2 I1 I2 lc1 lc2 l1 l2 g0 T1 T2 real;
+acr.m1 = m1;
+acr.m2 = m2;
+acr.I1 = I1;
+acr.I2 = I2;
+acr.lc1 = lc1;
+acr.lc2 = lc2;
+acr.l1 = l1;
+acr.l2 = l2;
+acr.d1 = acr.l1/2; % Center of mass distance along link 1 from the fixed joint.
+acr.d2 = acr.l2/2; % Center of mass distance along link 2 from the fixed joint.
+acr.g0 = g0;
+%}
 
 acr.q1 = q1;
 acr.q2 = q2;
@@ -50,6 +66,9 @@ acr.kp2 = 2000;
 
 acr.T1 = 0;
 acr.T2 = 0;
+
+%acr.T1 = T1;
+%acr.T2 = T2;
 
 %q = [q1;q2];
 %qD = [q1d;q2d];
