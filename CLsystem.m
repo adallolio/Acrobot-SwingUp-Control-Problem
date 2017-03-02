@@ -23,9 +23,7 @@ if strcmp(acr.controller_type,'noncollocated')
                 T = acr.saturation_limit;
         end
         
-        q1dd = Compute_q1dd(acr.I1,acr.I2,acr.T1,T,acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d);
-        q2dd = Compute_q2dd(acr.I1,acr.I2,acr.T1,T,acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d);
-
+        
         %q1dd = -(100*sin(q2)*q1d^2 - 250*T + 981*cos(q1 + q2))/(50*(2*cos(q2) + 5));
         %q2dd = -(- 100*sin(q2)*q2d^2 - 200*q1d*sin(q2)*q2d + 981*cos(q1 + q2) + 2943*cos(q1))/(50*(2*cos(q2) + 5));
 
@@ -45,10 +43,17 @@ if strcmp(acr.controller_type,'noncollocated')
         
 else
         qdes = acr.alpha*atan(q1d);
-        T = TorqueController(M, C, G, q2, q2d, q2des, acr);
+        T = ComputeTorque2(acr.I1,acr.I2,acr.g0,acr.kd2,acr.kp2,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d,qdes);
 
-        q1dd = -(100*sin(q2)*q1d^2 - 250*T + 981*cos(q1 + q2))/(50*(2*cos(q2) + 5));
-        q2dd = -(- 100*sin(q2)*q2d^2 - 200*q1d*sin(q2)*q2d + 981*cos(q1 + q2) + 2943*cos(q1))/(50*(2*cos(q2) + 5));
+
+        if T > acr.saturation_limit
+                T = acr.saturation_limit;
+        elseif T < -acr.saturation_limit;
+                T = acr.saturation_limit;
+        end
+
+        %q1dd = -(100*sin(q2)*q1d^2 - 250*T + 981*cos(q1 + q2))/(50*(2*cos(q2) + 5));
+        %q2dd = -(- 100*sin(q2)*q2d^2 - 200*q1d*sin(q2)*q2d + 981*cos(q1 + q2) + 2943*cos(q1))/(50*(2*cos(q2) + 5));
 
 
 %{
@@ -66,6 +71,10 @@ else
 %}
 
 end
+
+q1dd = Compute_q1dd(acr.I1,acr.I2,acr.T1,T,acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d);
+q2dd = Compute_q2dd(acr.I1,acr.I2,acr.T1,T,acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d);
+
 
 vec = [q1d,q1dd,q2d,q2dd]';
 
