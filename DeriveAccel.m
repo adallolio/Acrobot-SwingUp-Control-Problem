@@ -11,7 +11,7 @@ eqn2 = simplify(solve(subs(eqn2forthdotdot2, acr.q1dd, eqn1forthdotdot1)-acr.q2d
 acr.q1dd = eqn1;
 acr.q2dd = eqn2;
 
-matlabFunction(acr.q1dd, 'file', '/home/juan-laptop/GitHub/UR/Compute_q1dd');
-matlabFunction(acr.q2dd, 'file', '/home/juan-laptop/GitHub/UR/Compute_q2dd');
+matlabFunction(acr.q1dd, 'file', '/home/dallo/Desktop/URproject/UR/Compute_q1dd');
+matlabFunction(acr.q2dd, 'file', '/home/dallo/Desktop/URproject/UR/Compute_q2dd');
 
 end

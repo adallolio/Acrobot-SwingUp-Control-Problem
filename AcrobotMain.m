@@ -16,12 +16,11 @@ animationSpeed = 1;
 
 AcrobotParameters;
 
+%{
 % Input Torque, Accelerations and system Energy derivation in symbolic form
-
 display('Acrobot Dynamics')
 [M,C,G] = AcrobotDynamicsMatrices(acr)
 pause
-
 display('Input Torque')
 if strcmp(acr.controller_type,'noncollocated')
     qdes = acr.goal;
@@ -31,15 +30,10 @@ else
     T = TorqueController(M, C, G, acr)
 end
 pause
-<<<<<<< HEAD
-
-DeriveAccel(M,C,G,T,acr);
-
-=======
->>>>>>> f79cf08805d0cc1b4e724fb099c89cd8c1e3c910
+%DeriveAccel(M,C,G,acr);  never to be used again, only once!!!
 display('System Energy')
-[E,acc1,acc2] = DeriveEnAcc(acr)
-
+[E] = DeriveEnAcc(acr)
+%}
 
 % [q1, q2, q1d, q2d] è giusto??
 init = [-pi/2    0    0   0]';
@@ -47,7 +41,7 @@ init = [-pi/2    0    0   0]';
 
 %% Acrobot dynamics
 
-options1 = odeset('AbsTol', 1e-6,'RelTol',1e-3);
+options1 = odeset('AbsTol', 1e-6,'RelTol',1e-6);
 [tarray, zarray] = ode15s(@CLsystem, [0 duration], init, options1, acr);
 
 
@@ -74,12 +68,12 @@ end
 Tc(Tc>acr.saturation_limit) = acr.saturation_limit;
 Tc(Tc<-acr.saturation_limit) = -acr.saturation_limit;
 
-
+%{
 
 energy = ComputeEnergy(zarray(:,1),zarray(:,3),zarray(:,2),zarray(:,4));
 
 makeplot
-
+%}
 %{
 
 %% Dynamics 
