@@ -39,14 +39,14 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
 
         q1d(i) = q1d(i-1) + delta_t*q1dd;
         q2d(i) = q2d(i-1) + delta_t*q2dd;
-        q1(i) = q1(i-1) + q1d(i)*delta_t + delta_t*q1d(i);
-        %mod(q1(i-1) + q1d(i)*delta_t + 0.5*q1dd*delta_t^2, 2*pi);
-        q2(i) = q2(i-1) + delta_t*q2d(i);
-        %mod(q2(i-1) + q2d(i)*delta_t + 0.5*q1dd*delta_t^2, 2*pi);
+        q1(i) = q1(i-1) + q1d(i)*delta_t + 0.5*q1dd*delta_t^2;
+        %q1(i-1) + q1d(i)*delta_t;
+        q2(i) = q2(i-1) + q2d(i)*delta_t + 0.5*q1dd*delta_t^2;
+        %q2(i-1) + q2d(i)*delta_t;
         
     end
 
-states_array = [q1 q2 q1d q2d];
+states_array = [q1 q1d q2 q2d];
 
 end
 
