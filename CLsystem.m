@@ -1,20 +1,21 @@
 function [vec] = CLsystem(t,vars,acr)
 
-z = [];
-zd = [];
-ni = [];
-nid = [];
+%z = [];
+%zd = [];
+%ni = [];
+%nid = [];
 q1 = vars(1);
-q1d = vars(3);
-q2 = vars(2);
+q1d = vars(2);
+q2 = vars(3);
 q2d = vars(4);
 
-[M,C,G] = AcrobotDynamicsMatrices(acr,vars);
+%[M,C,G] = AcrobotDynamicsMatrices(acr,vars);
 
 if strcmp(acr.controller_type,'noncollocated')
 
         qdes = acr.goal;
-        T = TorqueController(M, C, G, acr, q1, q1d, qdes);
+        T = ComputeTorque1(acr.I1,acr.I2,acr.g0,acr.kd1,acr.kp1,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d,qdes);
+        %T = TorqueController(M, C, G, acr, q1, q1d, qdes);
 
         if T > acr.saturation_limit
                 T = acr.saturation_limit;
@@ -22,8 +23,8 @@ if strcmp(acr.controller_type,'noncollocated')
                 T = acr.saturation_limit;
         end
         
-        q1dd = ComputeAccel1(q1,q2,q1d,q2d);
-        q2dd = ComputeAccel2(q1,q2,q1d,q2d);
+        q1dd = Compute_q1dd(acr.I1,acr.I2,acr.T1,T,acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d);
+        q2dd = Compute_q2dd(acr.I1,acr.I2,acr.T1,T,acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d);
 
         %q1dd = -(100*sin(q2)*q1d^2 - 250*T + 981*cos(q1 + q2))/(50*(2*cos(q2) + 5));
         %q2dd = -(- 100*sin(q2)*q2d^2 - 200*q1d*sin(q2)*q2d + 981*cos(q1 + q2) + 2943*cos(q1))/(50*(2*cos(q2) + 5));

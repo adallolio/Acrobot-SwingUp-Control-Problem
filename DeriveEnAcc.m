@@ -35,7 +35,7 @@ K = 1/2*acr.I1*acr.q1d^2 + 1/2*acr.I2*(acr.q2d+acr.q1d)^2 + 1/2*acr.m1*dot(vc1,v
 E = P + K;
 
 matlabFunction(E, 'file', '/home/dallo/Desktop/URproject/UR/ComputeEnergy');
-
+%{
 %AMB for just link 2:
 MB = cross(bc2,-acr.m2*acr.g0*j)+acr.T2*k;
 Hdot2 = acr.I2*(acr.q2dd+acr.q1dd)*k + cross(bc2, acr.m2*Ac2);
@@ -55,5 +55,5 @@ eqn1 = simplify(solve(subs(eqn_q1dd, acr.q2dd, eqn_q2dd)-acr.q1dd,acr.q1dd));
 %Create matlab functions for thdotdot1 and 2:
 matlabFunction(eqn1, 'file', '/home/dallo/Desktop/URproject/UR/ComputeAccel1');
 matlabFunction(eqn2, 'file', '/home/dallo/Desktop/URproject/UR/ComputeAccel2');
-
+%}
 end
