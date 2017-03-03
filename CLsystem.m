@@ -13,7 +13,7 @@ function [vec] = CLsystem(t,vars,acr)
         T = ComputeTorque1(acr.I1,acr.I2,acr.g0,acr.kd1,acr.kp1,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1,q2,q1d,q2d,qdes);
         %T = TorqueController(M, C, G, acr, q1, q1d, qdes);
 
-%}
+
         
     elseif strcmp(acr.controller_type,'collocated')
         qdes = acr.alpha*atan(q1d);

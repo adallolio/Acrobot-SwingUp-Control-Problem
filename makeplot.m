@@ -44,7 +44,7 @@ grid on
 energyPlot = plot(0,0,'k'); %Energy plot over time.
 % plot([0,endtime],[desEnergy,desEnergy],'r'); %The line showing the target energy
 
-axis([0,endtime,min(energy),max(energy)]); %size to fit energy bounds and timescale
+axis([0,endtime,min(energy)-1,max(energy)+1]); %size to fit energy bounds and timescale
 
 xlabel('Time (s)','FontSize',16)
 ylabel('Energy (J)','FontSize',16)
@@ -72,7 +72,7 @@ accelerationPlot2 = plot(0,0,'b');
 
 %axis([0,endtime,max(min(zarray(:,2))-abs(min(zarray(:,2)))*0.1-0.1,-max(zarray(:,2))),min(max(zarray(:,2))*1.1,-min(zarray(:,2))*1.1)]); %size to fit whatever output given
 xlim([0,endtime])
-ylim([-100,100])
+ylim([-1000,1000])
 xlabel('Time (s)','FontSize',16)
 ylabel('Acceleration','FontSize',16)
 hold off
