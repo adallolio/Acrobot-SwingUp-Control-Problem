@@ -45,7 +45,7 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
         elseif Torque(i)<-acr.saturation_limit;
             Torque(i) = acr.saturation_limit;
         end
-        
+
         % Computes accelerations, velocities and positions
         if strcmp(internal_controller,'SwingUp')
             % Joint Accelerations
@@ -70,6 +70,7 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
             q1(i) = q1(i-1)+delta_t*q1d(i);
             q2(i) = q2(i-1)+delta_t*q2d(i);
         end
+
         
     end
 

@@ -36,17 +36,13 @@ elseif strcmp(acr.controller_type,'collocated')
 end
 %}
 
-
 [tarray, zarray, Tc] = ComputeDynamics(init, duration, 2000, acr);
 
 energy = ComputeEnergy(zarray(:,1),zarray(:,4),zarray(:,2),zarray(:,5));
 
 acc1 = zarray(:,1); %for plots
 acc2 = zarray(:,4); %for plots
-
-
 %makeplot
-
 
 figure(1)
 grid on 

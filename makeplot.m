@@ -72,7 +72,10 @@ accelerationPlot2 = plot(0,0,'b');
 
 %axis([0,endtime,max(min(zarray(:,2))-abs(min(zarray(:,2)))*0.1-0.1,-max(zarray(:,2))),min(max(zarray(:,2))*1.1,-min(zarray(:,2))*1.1)]); %size to fit whatever output given
 xlim([0,endtime])
+if strcmp(acr.controller_type,'noncollocated')
 ylim([-1000,1000])
+else ylim([-10,10])
+end
 xlabel('Time (s)','FontSize',16)
 ylabel('Acceleration','FontSize',16)
 hold off
