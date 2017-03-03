@@ -17,10 +17,10 @@ acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
 init = [-pi/2    0    0   0]';
 
 % Simulation duration
-duration = 10;
+duration = 20;
 animationSpeed = 1;
 
-%{}
+%{
 options1 = odeset('AbsTol', 1e-6,'RelTol',1e-6); %Transition from swing up to linear balance controller when conditions met.
 [tarray, zarray] = ode15s(@CLsystem, [0 duration], init, options1, acr);
 
@@ -39,9 +39,9 @@ end
 
 [tarray, zarray, Tc] = ComputeDynamics(init, duration, 2000, acr);
 
-energy = ComputeEnergy(zarray(:,1),zarray(:,2),zarray(:,3),zarray(:,4));
+energy = ComputeEnergy(zarray(:,1),zarray(:,4),zarray(:,2),zarray(:,5));
 
-acc1 = zarray(:,2); %for plots
-acc2 = zarray(:,4); %for plots
+acc1 = zarray(:,3); %for plots
+acc2 = zarray(:,6); %for plots
 
 makeplot

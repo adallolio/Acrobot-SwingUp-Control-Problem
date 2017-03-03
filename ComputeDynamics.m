@@ -10,8 +10,10 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
     q2 = zeros(length(time_array),1);
     q2(1) = init(2);
     q1d = zeros(length(time_array),1);
+    q1dd = zeros(length(time_array),1);
     q1d(1) = init(3);
     q2d = zeros(length(time_array),1);
+    q2dd = zeros(length(time_array),1);
     q2d(1) = init(4);
     Torque = zeros(length(time_array),1);
 
@@ -34,19 +36,19 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
             Torque(i) = acr.saturation_limit;
         end
 
-        q1dd = Compute_q1dd(acr.I1,acr.I2,acr.T1,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
-        q2dd = Compute_q2dd(acr.I1,acr.I2,acr.T1,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
+        q1dd(i) = Compute_q1dd(acr.I1,acr.I2,acr.T1,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
+        q2dd(i) = Compute_q2dd(acr.I1,acr.I2,acr.T1,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
 
-        q1d(i) = q1d(i-1) + delta_t*q1dd;
-        q2d(i) = q2d(i-1) + delta_t*q2dd;
-        q1(i) = q1(i-1) + q1d(i)*delta_t + 0.5*q1dd*delta_t^2;
-        %q1(i-1) + q1d(i)*delta_t;
-        q2(i) = q2(i-1) + q2d(i)*delta_t + 0.5*q1dd*delta_t^2;
-        %q2(i-1) + q2d(i)*delta_t;
+        q1d(i) = q1d(i-1) + delta_t*q1dd(i);
+        q2d(i) = q2d(i-1) + delta_t*q2dd(i);
+        q1(i) = q1(i-1) + q1d(i)*delta_t + 0.5*q1dd(i)*delta_t^2;
+        %q1(i) = mod(q1(i-1) + q1d(i)*delta_t,2*pi);
+        q2(i) = q2(i-1) + q2d(i)*delta_t + 0.5*q1dd(i)*delta_t^2;
+        %q2(i) = mod(q2(i-1) + q2d(i)*delta_t,2*pi);
         
     end
 
-states_array = [q1 q1d q2 q2d];
+states_array = [q1 q1d q1dd q2 q2d q2dd];
 
 end
 
