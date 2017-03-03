@@ -36,7 +36,7 @@ elseif strcmp(acr.controller_type,'collocated')
 end
 %}
 
-[tarray, zarray, Tc] = ComputeDynamics(init, duration, 2000, acr);
+[tarray, zarray, Tc] = ComputeDynamics(init, duration, 10000, acr);
 
 energy = ComputeEnergy(zarray(:,1),zarray(:,4),zarray(:,2),zarray(:,5));
 
@@ -49,7 +49,7 @@ grid on
 hold on 
 %plot(tarray,zarray(:,6),'r')
 plot(tarray,zarray(:,1),'b')  
-plot(tarray,mod(zarray(:,4),-2*pi),'r') 
+plot(tarray,zarray(:,4),'r') 
 hold off
 
 %{
