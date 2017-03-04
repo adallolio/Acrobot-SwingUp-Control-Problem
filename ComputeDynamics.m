@@ -22,7 +22,7 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
  
         if (q1(i-1) < 1.7453 && q1(i-1) > 1.3963 && q2(i-1) < 0.05 && q2(i-1)> -0.05)
             internal_controller = 'LQR';
-            disp('HOlaaa')
+            %disp('HOlaaa')
         else 
             internal_controller = 'SwingUp';
         end

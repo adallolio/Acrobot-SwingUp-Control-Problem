@@ -1,96 +1,70 @@
-%% ACROBOT simulation with swing-up control.
-% The acrobot is a two-link robot in which only the second joint (elbw) is actuated.
+clear all;
+close all;
+clc;
 
-% Paper to refer: "Partial Feedback Linearization of Underactuated Mechanical Systems" by Mark Spong.
-% We will implement both kind of controllers: collocated and non-collocated.
+acr = AcrobotParameters('num'); 
+% Choose collocated or non-collocated implementation.
+acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
 
-
-
-%% IMPLEMENTATION
-
-clc; close all; clear all;
-
-%% Animation Parameters
-duration = 2;
-animationSpeed = 1;
-
-acr = AcrobotParameters('num');
-
-%{
-% Input Torque, Accelerations and system Energy derivation in symbolic form
-display('Acrobot Dynamics')
-[M,C,G] = AcrobotDynamicsMatrices(acr)
-pause
-display('Input Torque')
-if strcmp(acr.controller_type,'noncollocated')
-    qdes = acr.goal;
-    T = TorqueController(M, C, G, acr)
-else 
-    qdes = acr.alpha*atan(q1d);
-    T = TorqueController(M, C, G, acr)
-end
-pause
-%DeriveAccel(M,C,G,acr);  never to be used again, only once!!!
-display('System Energy')
-[E] = DeriveEnAcc(acr)
-%}
-
-% [q1, q2, q1d, q2d] è giusto??
+acr
+% Initial conditions:
 init = [-pi/2    0    0   0]';
 
+% Simulation duration
+duration = 10;
+animationSpeed = 1;
 
-%% Acrobot dynamics
-
-options1 = odeset('AbsTol', 1e-6,'RelTol',1e-6);
+%{
+options1 = odeset('AbsTol', 1e-6,'RelTol',1e-6); %Transition from swing up to linear balance controller when conditions met.
 [tarray, zarray] = ode15s(@CLsystem, [0 duration], init, options1, acr);
 
 
+%Tc = ones(length(tarray),1);
 
-%% Controllers
-
-Tc = ones(length(tarray),1);
 if strcmp(acr.controller_type,'noncollocated') 
-    % NON-COLLOCATED linearization
-    for i = 1:length(tarray)
-        qdes = acr.goal;
-        [M,C,G] = AcrobotDynamicsMatrices(acr,zarray(i,:));
-        Tc(i) = TorqueController(M, C, G, acr, zarray(i,1), zarray(i,2), qdes);
-    end
+	qdes = acr.goal;
+	Tc = ComputeTorque1(acr.I1,acr.I2,acr.g0,acr.kd1,acr.kp1,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,zarray(:,1),zarray(:,3),zarray(:,2),zarray(:,4),qdes);
 elseif strcmp(acr.controller_type,'collocated') 
-    % COLLOCATED linearization
-    for i = 1:length(tarray)
-        qdes = acr.alpha*atan(zarray(i,3));
-        [M,C,G] = AcrobotDynamicsMatrices(acr,zarray(i,:));
-        Tc(i) = TorqueController(M, C, G, acr, zarray(i,3), zarray(i,4), qdes);
-    end
+	qdes = acr.alpha*atan(zarray(:,2));
+	Tc = ComputeTorque2(acr.I1,acr.I2,acr.g0,acr.kd2,acr.kp2,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,zarray(:,1),zarray(:,3),zarray(:,2),zarray(:,4),qdes);
 end
-
-Tc(Tc>acr.saturation_limit) = acr.saturation_limit;
-Tc(Tc<-acr.saturation_limit) = -acr.saturation_limit;
-
-%{
-energy = ComputeEnergy(zarray(:,1),zarray(:,3),zarray(:,2),zarray(:,4));
-makeplot
 %}
+
+[tarray, zarray, Tc] = ComputeDynamics(init, duration, 10000, acr);
+
+energy = ComputeEnergy(zarray(:,1),zarray(:,4),zarray(:,2),zarray(:,5));
+
+pos1 = zarray(:,1); %for plots
+pos2 = zarray(:,4); %for plots
+vel1 = zarray(:,2); %for plots
+vel2 = zarray(:,5); %for plots
+acc1 = zarray(:,3); %for plots
+acc2 = zarray(:,6); %for plots
+
+plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
+
 %{
-%% Dynamics 
-[states] = AcrobotDynamics(M,C,G,[kp1,kd1],saturation_limit,[q1,q1d,q2,q2d],pi/2);
-%% Phase portrait
-Acrobot_PhasePortrait(m1,m2,I1,I2,lc1,lc2,l1,l2,g0);
-%Assemble the state vector derivatives.
-zdot = [q1d
-    q1dd
-    q2d
-    q2dd
-    ];
-%% Animation
-duration = 20;
-animationSpeed = 0.5;
-samples=[];
-i=1;
-while (duration~=0)
-	duration = duration-0.05;
-    samples(i)=duration;
-    i=i+1;
-end
+figure(1)
+grid on 
+hold on 
+plot(tarray,zarray(:,1),'b')  
+plot(tarray,zarray(:,4),'r') 
+hold off 
+%}
+
+% By modifying the first two arguments of this functions positions, 
+% velocities and accelerations are plotted.
+makeplot('pos1','pos2',tarray,zarray,animationSpeed,Tc,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
+
+
+
+%{
+[tarray_, zarray_, Tc] = ComputeDynamics(init, duration, 2000, acr);
+figure(2)
+grid on 
+hold on 
+%plot(tarray,zarray(:,6),'r')
+plot(tarray_,zarray_(:,1),'b')  
+plot(tarray_,mod(zarray_(:,4),-2*pi),'r') 
+hold off
 %}

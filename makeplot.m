@@ -1,12 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Animate the acrobot after the MAIN script has been run.
-%
-%   Matthew Sheen, 2014
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-close all
-
+function [] = makeplot(var1,var2,tarray,zarray,animationSpeed,Tc,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2)
 %Animation speed:
 move = animationSpeed;
 
@@ -31,7 +23,7 @@ ydat2 = 0.5*width2*[-1 1 1 -1];
 xdat2 = acr.l2*[0 0 1 1];
 link2 = patch(xdat2,ydat2, [0 0 0 0],'r');
 axis([-2.0 2.0 -2.6 2.6]); 
-
+plot([0 0],[0 2.6],'--','Color','k','linewidth',0.2);
 %Dots for the joints:
 h1 = plot(0,0,'.k','MarkerSize',40); 
 h2 = plot(0,0,'.k','MarkerSize',40); 
@@ -63,22 +55,48 @@ xlabel('Time (s)','FontSize',16)
 ylabel('Torque (Nm)','FontSize',16)
 hold off
 
-%%%%%%%% 4rd Subplot -- q1dd %%%%%%%
+%%%%%%%% 4rd Subplot -- vars %%%%%%%
 subplot(3,4,[11 12])
 hold on
 grid on
-accelerationPlot1 = plot(0,0,'r');
-accelerationPlot2 = plot(0,0,'b');
+    if strcmp(var1,'pos1') && strcmp(var2,'pos2')
+        positionPlot1 = plot(0,0,'r');
+        positionPlot2 = plot(0,0,'b');
+        %axis([0,endtime,max(min(zarray(:,2))-abs(min(zarray(:,2)))*0.1-0.1,-max(zarray(:,2))),min(max(zarray(:,2))*1.1,-min(zarray(:,2))*1.1)]); %size to fit whatever output given
+        xlim([0,endtime])
+            if strcmp(acr.controller_type,'noncollocated')
+                ylim([-20,20])
+            else ylim([-10,10])
+            end
+        xlabel('Time (s)','FontSize',16)
+        ylabel('Position','FontSize',16)
+        hold off
+    elseif strcmp(var1,'vel1') && strcmp(var2,'vel2')
+        velocityPlot1 = plot(0,0,'r');
+        velocityPlot2 = plot(0,0,'b');
+        %axis([0,endtime,max(min(zarray(:,2))-abs(min(zarray(:,2)))*0.1-0.1,-max(zarray(:,2))),min(max(zarray(:,2))*1.1,-min(zarray(:,2))*1.1)]); %size to fit whatever output given
+        xlim([0,endtime])
+            if strcmp(acr.controller_type,'noncollocated')
+                ylim([-20,20])
+            else ylim([-10,10])
+            end
+        xlabel('Time (s)','FontSize',16)
+        ylabel('Velocity','FontSize',16)
+        hold off
+    else 
+        accelerationPlot1 = plot(0,0,'r');
+        accelerationPlot2 = plot(0,0,'b');
+        %axis([0,endtime,max(min(zarray(:,2))-abs(min(zarray(:,2)))*0.1-0.1,-max(zarray(:,2))),min(max(zarray(:,2))*1.1,-min(zarray(:,2))*1.1)]); %size to fit whatever output given
+        xlim([0,endtime])
+            if strcmp(acr.controller_type,'noncollocated')
+                ylim([-20,20])
+            else ylim([-10,10])
+            end
+        xlabel('Time (s)','FontSize',16)
+        ylabel('Acceleration','FontSize',16)
+        hold off
+    end
 
-%axis([0,endtime,max(min(zarray(:,2))-abs(min(zarray(:,2)))*0.1-0.1,-max(zarray(:,2))),min(max(zarray(:,2))*1.1,-min(zarray(:,2))*1.1)]); %size to fit whatever output given
-xlim([0,endtime])
-if strcmp(acr.controller_type,'noncollocated')
-ylim([-1000,1000])
-else ylim([-10,10])
-end
-xlabel('Time (s)','FontSize',16)
-ylabel('Acceleration','FontSize',16)
-hold off
 
 %Make the whole window big for handy viewing:
 set(gcf, 'units', 'inches', 'position', [5 5 18 9])
@@ -120,14 +138,31 @@ while toc<endtime/move
     set(torquePlot,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
     set(torquePlot,'yData',Tc(plotInd))
 
+    
+
+if strcmp(var1,'pos1') && strcmp(var2,'pos2')
+    %Make the torque profile also plot out over time simultaneously.
+    set(positionPlot1,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
+    set(positionPlot1,'yData',pos1(plotInd))
+    set(positionPlot2,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
+    set(positionPlot2,'yData',pos2(plotInd))
+elseif strcmp(var1,'vel1') && strcmp(var2,'vel2')
+    %Make the torque profile also plot out over time simultaneously.
+    set(velocityPlot1,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
+    set(velocityPlot1,'yData',vel1(plotInd))
+    set(velocityPlot2,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
+    set(velocityPlot2,'yData',vel2(plotInd))
+else 
     %Make the torque profile also plot out over time simultaneously.
     set(accelerationPlot1,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
     set(accelerationPlot1,'yData',acc1(plotInd))
     set(accelerationPlot2,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
     set(accelerationPlot2,'yData',acc2(plotInd))
+end
 
     legend('Link 1','Link 2'); 
     
     drawnow;
 end
 
+end
