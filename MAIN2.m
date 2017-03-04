@@ -42,7 +42,6 @@ energy = ComputeEnergy(zarray(:,1),zarray(:,4),zarray(:,2),zarray(:,5));
 
 acc1 = zarray(:,1); %for plots
 acc2 = zarray(:,4); %for plots
-%makeplot
 
 figure(1)
 grid on 
@@ -50,7 +49,11 @@ hold on
 %plot(tarray,zarray(:,6),'r')
 plot(tarray,zarray(:,1),'b')  
 plot(tarray,zarray(:,4),'r') 
-hold off
+hold off 
+
+makeplot
+
+
 
 %{
 [tarray_, zarray_, Tc] = ComputeDynamics(init, duration, 2000, acr);
