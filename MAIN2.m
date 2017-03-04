@@ -46,7 +46,6 @@ acc2 = zarray(:,4); %for plots
 figure(1)
 grid on 
 hold on 
-%plot(tarray,zarray(:,6),'r')
 plot(tarray,zarray(:,1),'b')  
 plot(tarray,zarray(:,4),'r') 
 hold off 

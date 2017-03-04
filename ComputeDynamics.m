@@ -58,7 +58,7 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
             %q1(i) = q1(i-1) + q1d(i)*delta_t + 0.5*q1dd(i)*delta_t^2;
             q1(i) = q1(i-1) + q1d(i)*delta_t;
             %q2(i) = q2(i-1) + q2d(i)*delta_t + 0.5*q1dd(i)*delta_t^2;
-            q2(i) = angle_normalizer(q2(i-1) + q2d(i)*delta_t);
+            q2(i) = mod(q2(i-1) + q2d(i)*delta_t,2*pi);%angle_normalizer(q2(i-1) + q2d(i)*delta_t);
         elseif strcmp(internal_controller,'LQR')
             % Joint Accelerations
             q1dd(i) = (-553.4018)*(q1(i-1)-qdes)+(-401.9784)*q2(i-1)+(-98.9437)*q1d(i-1)+(-55.0397)*q2d(i-1)+(0.6100)*Torque(i);
@@ -68,7 +68,7 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
             q2d(i) = q2d(i-1)+delta_t*q2dd(i);
             % Joint Positions
             q1(i) = q1(i-1)+delta_t*q1d(i);
-            q2(i) = angle_normalizer(q2(i-1)+delta_t*q2d(i));
+            q2(i) = mod(q2(i-1)+delta_t*q2d(i),2*pi);%angle_normalizer(q2(i-1)+delta_t*q2d(i));
         end
 
         

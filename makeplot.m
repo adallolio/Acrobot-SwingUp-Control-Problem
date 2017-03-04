@@ -30,7 +30,7 @@ width2 = acr.l2*0.05;
 ydat2 = 0.5*width2*[-1 1 1 -1];
 xdat2 = acr.l2*[0 0 1 1];
 link2 = patch(xdat2,ydat2, [0 0 0 0],'r');
-axis([-3.5 3.5 -3.6 3.6]);
+axis([-2.0 2.0 -2.6 2.6]); 
 
 %Dots for the joints:
 h1 = plot(0,0,'.k','MarkerSize',40); 
