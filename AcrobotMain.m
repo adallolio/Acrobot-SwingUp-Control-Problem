@@ -6,7 +6,7 @@ acr = AcrobotParameters('num');
 % Choose collocated or non-collocated implementation.
 acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
 
-acr
+acr;
 % Initial conditions:
 init = [-pi/2    0    0   0]';
 
@@ -41,20 +41,15 @@ vel2 = zarray(:,5); %for plots
 acc1 = zarray(:,3); %for plots
 acc2 = zarray(:,6); %for plots
 
-plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
-
-%{
 figure(1)
-grid on 
-hold on 
-plot(tarray,zarray(:,1),'b')  
-plot(tarray,zarray(:,4),'r') 
-hold off 
-%}
+plot(tarray,pos1,'b',tarray,pos2,'r')
+legend('q1','q2','q1d','q2d')
+
+%plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 
 % By modifying the first two arguments of this functions positions, 
 % velocities and accelerations are plotted.
-makeplot('pos1','pos2',tarray,zarray,animationSpeed,Tc,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
+%makeplot('pos1','pos2',tarray,zarray,animationSpeed,Tc,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
 
 
