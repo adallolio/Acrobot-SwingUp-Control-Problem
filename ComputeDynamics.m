@@ -49,8 +49,8 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
         % Computes accelerations, velocities and positions
         if strcmp(internal_controller,'SwingUp')
             % Joint Accelerations
-            q1dd(i) = Compute_q1dd(acr.I1,acr.I2,acr.T1,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
-            q2dd(i) = Compute_q2dd(acr.I1,acr.I2,acr.T1,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
+            q1dd(i) = Compute_q1dd_new(acr.I1,acr.I2,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
+            q2dd(i) = Compute_q2dd_new(acr.I1,acr.I2,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
             % Joint Velocities
             q1d(i) = q1d(i-1) + delta_t*q1dd(i);
             q2d(i) = q2d(i-1) + delta_t*q2dd(i);
