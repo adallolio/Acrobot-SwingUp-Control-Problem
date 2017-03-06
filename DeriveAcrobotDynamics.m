@@ -2,7 +2,7 @@
 clc; close all; clear all;
 
 % Generates Acrobot Parameters symbolically
-AcrobotParameters;
+acr = AcrobotParameters('sym');
 
 % Computes the Inertia, Coriolis and Gravity matrices
 display('Computing Acrobot Dynamics Matrices')
