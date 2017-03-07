@@ -31,12 +31,11 @@ function [acr] = AcrobotParameters(type)
         acr.kd2 = 10;
         acr.kp2 = 20;
 
-        acr.T1 = 0.0;
         acr.T2 = 0.0;
 
     %%SYMBOLIC PARAMETERS
     else
-        syms m1 m2 I1 I2 lc1 lc2 l1 l2 g0 T1 T2 kd1 kp1 kd2 kp2 q1 q2 q1d q2d q1dd q2dd qdes real;
+        syms m1 m2 I1 I2 lc1 lc2 l1 l2 g0 T1 T2 kd1 kp1 kd2 kp2 q1 q2 q1d q2d q1dd q2dd q1des q2des real;
         acr.m1 = m1;
         acr.m2 = m2;
         acr.I1 = I1;
@@ -49,7 +48,6 @@ function [acr] = AcrobotParameters(type)
         acr.d2 = acr.l2/2; % Center of mass distance along link 2 from the fixed joint.
         acr.g0 = g0;
 
-        acr.T1 = T1;
         acr.T2 = T2;
 
         acr.q1 = q1;
@@ -58,7 +56,8 @@ function [acr] = AcrobotParameters(type)
         acr.q1dd = q1dd;
         acr.q2d = q2d;
         acr.q2dd = q2dd;
-        acr.qdes = qdes;
+        acr.q1des = q1des;
+        acr.q2des = q2des;
 
         % For link 1 linearization (noncollocated):
         acr.kd1 = kd1;
@@ -69,7 +68,7 @@ function [acr] = AcrobotParameters(type)
         acr.kp2 = kp2;
     end
 
-    acr.saturation_limit = 10000; % Actuator Saturation
+    acr.saturation_limit = 200; % Actuator Saturation
 
 end
 

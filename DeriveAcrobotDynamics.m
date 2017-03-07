@@ -9,7 +9,9 @@ display('Computing Acrobot Dynamics Matrices')
 [M,C,G] = AcrobotDynamicsMatrices(acr);
 % Computes the acceleration of q1 and q2
 display('Computing Joint acceleration equations')
-DeriveAccel(M,C,G,acr);
-
+DeriveJointAcceleration(M,C,G,acr);
+% Computes the torque
+display('Computing Input torques equations')
+DeriveTorques(M, C, G, acr);
 
 

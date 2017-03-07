@@ -5,7 +5,7 @@ acr = AcrobotParameters('num');
 acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
 
 % Initial conditions:
-init = [-pi/2    0    0   0]';
+init = [-pi/2  0   0   0]';
 
 % Simulation duration
 duration = 10;
@@ -17,12 +17,12 @@ energy = ComputeEnergy(zarray(:,1),zarray(:,4),zarray(:,2),zarray(:,5));
     
 % Plot variables
 pos1 = zarray(:,1); %for plots
-pos2 = mod(zarray(:,4),2*pi);%angle_normalizer(zarray(:,4)); %for plots
+pos2 = zarray(:,4);%angle_normalizer(zarray(:,4)); %for plots
 vel1 = zarray(:,2); %for plots
 vel2 = zarray(:,5); %for plots
 acc1 = zarray(:,3); %for plots
 acc2 = zarray(:,6); %for plots
-
+torq = zarray(:,7);
 plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 
 
@@ -31,21 +31,26 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 %makeplot('pos1','pos2',tarray,zarray,animationSpeed,Tc,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
 
-figure(100)
-subplot(3,1,1); 
+figure()
+subplot(4,1,1); 
 plot(tarray,pos1,'b',tarray,pos2,'r');
 title('Joints position')
 legend('q1','q2')
 
-subplot(3,1,2); 
+subplot(4,1,2); 
 plot(tarray,vel1,'b',tarray,vel2,'r')
 title('Joints Velocity')
 legend('q1d','q2d')
 
-subplot(3,1,3); 
+subplot(4,1,3); 
 plot(tarray,acc1,'b',tarray,acc2,'r')
 title('Joints Acceleration')
 legend('q1dd','q2dd')
+
+subplot(4,1,4); 
+plot(tarray,torq,'r')
+title('Torque at second Joint')
+legend('Torque')
 %{
 [tarray_, zarray_, Tc] = ComputeDynamics(init, duration, 2000, acr);
 figure(2)
