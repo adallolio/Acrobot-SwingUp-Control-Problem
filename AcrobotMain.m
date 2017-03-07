@@ -1,4 +1,4 @@
-%clear all; close all; clc;
+clear all; close all; clc;
 
 acr = AcrobotParameters('num'); 
 % Choose collocated or non-collocated implementation.
@@ -33,7 +33,7 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 
 figure()
 subplot(4,1,1); 
-plot(tarray,pos1,'b',tarray,pos2,'r');
+plot(tarray,pos1,'b',tarray,mod(pos2,-2*pi),'r');
 title('Joints position')
 legend('q1','q2')
 

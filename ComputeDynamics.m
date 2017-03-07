@@ -17,27 +17,34 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
     q2dd = zeros(length(time_array),1);
     q2d(1) = init(4);
     Torque = zeros(length(time_array),1);
+    aux = zeros(length(time_array),1);
 
+    
+
+
+    %internal_controller = 'SwingUp';
     for i= 2:1:length(time_array)
+
+        [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
+        %internal_controller = 'SwingUp';
+        aux(i-1) = M(1,1); 
  
         if (angle_normalizer(q1(i-1)) < 1.7453 && angle_normalizer(q1(i-1)) > 1.3963 && angle_normalizer(q2(i-1)) < 0.05 && angle_normalizer(q2(i-1))> -0.05)
-            internal_controller = 'LQR';
-            disp('LQR');
+            internal_controller = 'LQR'
         else 
             internal_controller = 'SwingUp';
         end
-        
         internal_controller = 'SwingUp';
-        
+
         % Select the type of Strategy for Torque
         if strcmp(acr.controller_type,'noncollocated')
             q1des = acr.goal;
             Torque(i) = TorqueNonColloacted(acr.I1,acr.I2,acr.g0,acr.kd1,acr.kp1,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1),q1des);
 
         elseif strcmp(acr.controller_type,'collocated')
-            q2des = 2*acr.alpha/(pi*atan(q1d(i-1)));
-            %q2des = acr.alpha*atan(q1d(i-1));
-            Torque(i) = TorqueCollocated(acr.I1,acr.I2,acr.g0,acr.kd2,acr.kp2,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1),q2des);                                       
+            %q2des = (2*acr.alpha/pi)*atan(q1d(i-1)));
+            q2des = acr.alpha*atan(q1d(i-1));
+            Torque(i) = TorqueCollocated(acr.I1,acr.I2,acr.g0,acr.kd2,acr.kp2,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1),q2des);
         else
             Torque(i) = 0.0;
         end
@@ -83,7 +90,7 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
         
     end
 
-states_array = [q1 q1d q1dd q2 q2d q2dd Torque];
+states_array = [q1 q1d q1dd q2 q2d q2dd Torque,aux];
 
 end
 

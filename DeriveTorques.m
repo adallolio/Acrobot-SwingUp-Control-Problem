@@ -21,4 +21,3 @@ function [ Tc1, Tc2 ] = DeriveTorques(M, C, G, acr)
         matlabFunction(Tc2,'file','TorqueCollocated');
 
 end
-
