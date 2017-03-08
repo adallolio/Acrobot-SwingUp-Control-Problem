@@ -2,7 +2,7 @@ clear all; close all; clc;
 
 acr = AcrobotParameters('num'); 
 % Choose collocated or non-collocated implementation.
-acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
+acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
 
 % Initial conditions:
 init = [-pi/2  0   0   0]';
@@ -51,16 +51,6 @@ subplot(4,1,4);
 plot(tarray,torq,'r')
 title('Torque at second Joint')
 legend('Torque')
-%{
-[tarray_, zarray_, Tc] = ComputeDynamics(init, duration, 2000, acr);
-figure(2)
-grid on 
-hold on 
-%plot(tarray,zarray(:,6),'r')
-plot(tarray_,zarray_(:,1),'b')  
-plot(tarray_,mod(zarray_(:,4),-2*pi),'r') 
-hold off
-%}
 
 %% QUESTIONS FOR THE TUTTOR
 %{
