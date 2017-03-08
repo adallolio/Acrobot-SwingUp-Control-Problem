@@ -1,4 +1,3 @@
-
 clc; close all; clear all;
 
 % Generates Acrobot Parameters symbolically

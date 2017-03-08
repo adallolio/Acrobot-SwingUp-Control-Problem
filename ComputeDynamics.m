@@ -24,14 +24,16 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
 
         [M,~,~] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
         %internal_controller = 'SwingUp';
-        aux(i-1) = det(M(1,1)); 
+        aux(i-1) = det(M); 
  
-        if (angle_normalizer(q1(i-1)) < 1.7453 && angle_normalizer(q1(i-1)) > 1.3963 && angle_normalizer(q2(i-1)) < 0.05 && angle_normalizer(q2(i-1))> -0.05)
+        if (angle_normalizer(q1(i-1)) < 1.7453 && angle_normalizer(q1(i-1)) > 1.3963 && angle_normalizer(q2(i-1)) < 0.1745 && angle_normalizer(q2(i-1))> -0.1745)
             internal_controller = 'LQR';
+            q1d(i-1)
+            q2d(i-1)
         else 
             internal_controller = 'SwingUp';
         end
-        internal_controller = 'SwingUp';
+        %internal_controller = 'SwingUp';
 
         % Select the type of Strategy for Torque
         if strcmp(acr.controller_type,'noncollocated')
@@ -69,13 +71,23 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
             if strcmp(acr.controller_type,'noncollocated')
                 qdes = acr.goal;
             else
-                qdes = 2*acr.alpha/(pi*atan(q1d(i-1)));
+                qdes = acr.alpha*atan(q1d(i-1));
             end
             
-            
+            %dallo
+            % -170.6169  -70.0403  -76.7259  -34.1528
+            % 351.9686  144.3768  153.5505   68.3495
+            % -0.3000
+            % 0.6004
+
             % Joint Accelerations
-            q1dd(i) = (-553.4018)*(q1(i-1)-qdes)+(-401.9784)*q2(i-1)+(-98.9437)*q1d(i-1)+(-55.0397)*q2d(i-1)+(0.6100)*Torque(i);
-            q2dd(i) = (1.2314e+03)*(q1(i-1)-qdes)+(889.0061)*q2(i-1)+(231.9501)*q1d(i-1)+(129.0274)*q2d(i-1)+(-1.4300)*Torque(i);
+            %dallo
+            q1dd(i) = (-170.6169)*(q1(i-1)-qdes)+(-70.0403)*q2(i-1)+(-76.7259)*q1d(i-1)+(-34.1528)*q2d(i-1)+(-0.3000)*Torque(i);
+            q2dd(i) = (351.9686)*(q1(i-1)-qdes)+(144.3768)*q2(i-1)+(153.5505)*q1d(i-1)+(68.3495)*q2d(i-1)+(0.6004)*Torque(i);
+            %juan
+            %q1dd(i) = (146.0280)*(q1(i-1)-qdes)+(35.6284)*q2(i-1)+(50.5729)*q1d(i-1)+(11.1678)*q2d(i-1)+(-0.2302)*Torque(i);
+            %q2dd(i) = (-751.3891)*(q1(i-1)-qdes)+(-183.0816)*q2(i-1)+(-274.3180)*q1d(i-1)+(-60.5762)*q2d(i-1)+(1.2486)*Torque(i);
+        
             % Joint Velocities
             q1d(i) = q1d(i-1)+delta_t*q1dd(i);
             q2d(i) = q2d(i-1)+delta_t*q2dd(i);

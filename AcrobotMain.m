@@ -2,13 +2,13 @@ clear all; close all; clc;
 
 acr = AcrobotParameters('num'); 
 % Choose collocated or non-collocated implementation.
-acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
+acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
 
 % Initial conditions:
 init = [-pi/2  0   0   0]';
 
 % Simulation duration
-duration = 10;
+duration = 20;
 animationSpeed = 2;
 
 [tarray, zarray, Tc] = ComputeDynamics(init, duration, 10000, acr);
@@ -28,7 +28,7 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 
 % By modifying the first two arguments of this functions positions, 
 % velocities and accelerations are plotted.
-%makeplot('pos1','pos2',tarray,zarray,animationSpeed,Tc,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
+makeplot('pos1','pos2',tarray,zarray,animationSpeed,Tc,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
 
 figure()

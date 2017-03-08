@@ -14,20 +14,20 @@ function [acr] = AcrobotParameters(type)
         acr.I1 = 0.083;
         acr.I2 = 0.33;
         acr.l1 = 1.0;
-        acr.l2 = 2.0;
+        acr.l2 = 1.0;
         acr.lc1 = acr.l1/2;% Center of mass distance along link 1 from the fixed joint.
         acr.lc2 = acr.l2/2;% Center of mass distance along link 2 from the fixed joint.
         acr.g0 = 9.8;
 
         % For link 1 linearization (noncollocated):
         acr.goal = pi/2;
-        acr.kd1 = 6.4;
+        acr.kd1 = 8;
         acr.kp1 = 16;
 
         % For link 2 linearization (collocated):
         acr.alpha = pi/6; % "pumping" angle
         acr.kd2 = 16;
-        acr.kp2 = 200;
+        acr.kp2 = 100;
 
         acr.T2 = 0.0;
 
