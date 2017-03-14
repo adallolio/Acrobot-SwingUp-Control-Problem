@@ -33,7 +33,7 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
         else 
             internal_controller = 'SwingUp';
         end
-        internal_controller = 'SwingUp';
+        %internal_controller = 'SwingUp';
 
         % Select the type of Strategy for Torque
         if strcmp(acr.controller_type,'noncollocated')
@@ -75,20 +75,15 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
             end
             
             %dallo
-            % -170.6169  -70.0403  -76.7259  -34.1528
-            % 351.9686  144.3768  153.5505   68.3495
-            % -0.3000
-            % 0.6004
+
+        
+    
 
             % Joint Accelerations
-            %dallo
-
-            q1dd(i) = (-130.3243)*(q1(i-1)-qdes)+(-34.2149)*q2(i-1)+(-52.8374)*q1d(i-1)+(-16.0676)*q2d(i-1)+(-0.4286)*Torque(i-1);
-            q2dd(i) = (369.6843)*(q1(i-1)-qdes)+(96.8278)*q2(i-1)+(142.5228)*q1d(i-1)+(43.3406)*q2d(i-1)+(1.1561)*Torque(i-1);
-            %juan
-            %q1dd(i) = (146.0280)*(q1(i-1)-qdes)+(35.6284)*q2(i-1)+(50.5729)*q1d(i-1)+(11.1678)*q2d(i-1)+(-0.2302)*Torque(i);
-            %q2dd(i) = (-751.3891)*(q1(i-1)-qdes)+(-183.0816)*q2(i-1)+(-274.3180)*q1d(i-1)+(-60.5762)*q2d(i-1)+(1.2486)*Torque(i);
-        
+    
+            q1dd(i) = (-342.1693)*(q1(i-1)-qdes)+(-93.4274)*q2(i-1)+(-134.5067)*q1d(i-1)+(-43.8441)*q2d(i-1)+(-2.0645)*Torque(i-1);
+            q2dd(i) = (941.0351)*(q1(i-1)-qdes)+(256.5265)*q2(i-1)+(362.7871)*q1d(i-1)+(118.2550)*q2d(i-1)+(5.5683)*Torque(i-1);
+ 
             % Joint Velocities
             q1d(i) = q1d(i-1)+delta_t*q1dd(i);
             q2d(i) = q2d(i-1)+delta_t*q2dd(i);
