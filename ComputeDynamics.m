@@ -28,38 +28,38 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
  
         if (angle_normalizer(q1(i-1)) < 1.7453 && angle_normalizer(q1(i-1)) > 1.3963 && angle_normalizer(q2(i-1)) < 0.1745 && angle_normalizer(q2(i-1))> -0.1745)
             internal_controller = 'LQR';
-            q1d(i-1)
-            q2d(i-1)
+            q1d(i-1);
+            q2d(i-1);
         else 
             internal_controller = 'SwingUp';
         end
-        %internal_controller = 'SwingUp';
+        internal_controller = 'SwingUp';
 
         % Select the type of Strategy for Torque
         if strcmp(acr.controller_type,'noncollocated')
             q1des = acr.goal;
-            Torque(i) = TorqueNonColloacted(acr.I1,acr.I2,acr.g0,acr.kd1,acr.kp1,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1),q1des);
+            Torque(i-1) = TorqueNonColloacted(acr.I1,acr.I2,acr.g0,acr.kd1,acr.kp1,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1),q1des);
 
         elseif strcmp(acr.controller_type,'collocated')
             %q2des = 2*acr.alpha/(pi*atan(q1d(i-1)));
             q2des = acr.alpha*atan(q1d(i-1));
-            Torque(i) = TorqueCollocated(acr.I1,acr.I2,acr.g0,acr.kd2,acr.kp2,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1),q2des);
+            Torque(i-1) = TorqueCollocated(acr.I1,acr.I2,acr.g0,acr.kd2,acr.kp2,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1),q2des);
         else
-            Torque(i) = 0.0;
+            Torque(i-1) = 0.0;
         end
         
         % Controls the torque saturation
-        if Torque(i)>acr.saturation_limit
-            Torque(i) = acr.saturation_limit;
-        elseif Torque(i)<-acr.saturation_limit;
-            Torque(i) = acr.saturation_limit;
+        if Torque(i-1)>acr.saturation_limit
+            Torque(i-1) = acr.saturation_limit;
+        elseif Torque(i-1)<-acr.saturation_limit;
+            Torque(i-1) = acr.saturation_limit;
         end
 
         % Computes accelerations, velocities and positions
         if strcmp(internal_controller,'SwingUp')
             % Joint Accelerations
-            q1dd(i-1) = AccelerationJoint1(acr.I1,acr.I2,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
-            q2dd(i-1) = AccelerationJoint2(acr.I1,acr.I2,Torque(i),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
+            q1dd(i-1) = AccelerationJoint1(acr.I1,acr.I2,Torque(i-1),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
+            q2dd(i-1) = AccelerationJoint2(acr.I1,acr.I2,Torque(i-1),acr.g0,acr.l1,acr.lc1,acr.lc2,acr.m1,acr.m2,q1(i-1),q2(i-1),q1d(i-1),q2d(i-1));
             % Joint Velocities
             q1d(i) = q1d(i-1) + delta_t*q1dd(i-1);
             q2d(i) = q2d(i-1) + delta_t*q2dd(i-1);
@@ -82,8 +82,9 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
 
             % Joint Accelerations
             %dallo
-            q1dd(i) = (-170.6169)*(q1(i-1)-qdes)+(-70.0403)*q2(i-1)+(-76.7259)*q1d(i-1)+(-34.1528)*q2d(i-1)+(-0.3000)*Torque(i);
-            q2dd(i) = (351.9686)*(q1(i-1)-qdes)+(144.3768)*q2(i-1)+(153.5505)*q1d(i-1)+(68.3495)*q2d(i-1)+(0.6004)*Torque(i);
+
+            q1dd(i) = (-130.3243)*(q1(i-1)-qdes)+(-34.2149)*q2(i-1)+(-52.8374)*q1d(i-1)+(-16.0676)*q2d(i-1)+(-0.4286)*Torque(i-1);
+            q2dd(i) = (369.6843)*(q1(i-1)-qdes)+(96.8278)*q2(i-1)+(142.5228)*q1d(i-1)+(43.3406)*q2d(i-1)+(1.1561)*Torque(i-1);
             %juan
             %q1dd(i) = (146.0280)*(q1(i-1)-qdes)+(35.6284)*q2(i-1)+(50.5729)*q1d(i-1)+(11.1678)*q2d(i-1)+(-0.2302)*Torque(i);
             %q2dd(i) = (-751.3891)*(q1(i-1)-qdes)+(-183.0816)*q2(i-1)+(-274.3180)*q1d(i-1)+(-60.5762)*q2d(i-1)+(1.2486)*Torque(i);

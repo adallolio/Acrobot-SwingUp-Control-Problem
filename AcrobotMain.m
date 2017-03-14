@@ -5,10 +5,10 @@ acr = AcrobotParameters('num');
 acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
 
 % Initial conditions:
-init = [-pi/2  0   0   0]';
+init = [-pi/4  0   0   0]';
 
 % Simulation duration
-duration = 20;
+duration = 40;
 animationSpeed = 2;
 
 [tarray, zarray, Tc] = ComputeDynamics(init, duration, 10000, acr);
@@ -18,6 +18,7 @@ energy = ComputeEnergy(zarray(:,1),zarray(:,4),zarray(:,2),zarray(:,5));
 % Plot variables
 pos1 = zarray(:,1); %for plots
 pos2 = zarray(:,4);%angle_normalizer(zarray(:,4)); %for plots
+pos2 = mod(pos2,-2*pi);
 vel1 = zarray(:,2); %for plots
 vel2 = zarray(:,5); %for plots
 acc1 = zarray(:,3); %for plots
