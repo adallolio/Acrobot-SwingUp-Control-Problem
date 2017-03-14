@@ -2,16 +2,17 @@ clear all; close all; clc;
 
 acr = AcrobotParameters('num'); 
 % Choose collocated or non-collocated implementation.
-acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
+acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
 
 % Initial conditions:
 init = [-pi/2+0.1  0   0   0]';
 
 % Simulation duration
-duration = 40;
+duration = 10;
+time_step = 1.0e-03;
 animationSpeed = 2;
 
-[tarray, zarray, Tc] = ComputeDynamics(init, duration, 10000, acr);
+[tarray, zarray, Tc] = ComputeDynamics(init, duration, time_step, acr);
 % Computes the Energy
 energy = ComputeEnergy(zarray(:,1),zarray(:,4),zarray(:,2),zarray(:,5));
     

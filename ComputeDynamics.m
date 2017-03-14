@@ -1,11 +1,21 @@
-function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n_samples, acr)
+function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, delta_t, acr)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
-
-    delta_t = duration/n_samples;
+    % Calls the State Space Matrices for the LQR Controller
+    SS = load('SS_Matrices.mat');
+    if strcmp(acr.controller_type,'noncollocated')
+        [Ac, Bc, ~, ~, ~] = ComputesLQR(SS.ANonColl, SS.BNonColl);
+    elseif strcmp(acr.controller_type,'collocated')
+        [Ac, Bc, ~, ~, ~] = ComputesLQR(SS.AColl, SS.BColl);
+    else
+        [Ac, Bc, ~, ~, ~] = ComputesLQR(SS.AGeneral, SS.BGeneral);
+    end
+        
+    % Define the time vector of time for the system
     time_array = 0:delta_t:duration - delta_t;
 
+    % Initializes the position, velocity and acceleration arrays
     q1 = zeros(length(time_array),1);
     q1(1) = init(1);
     q2 = zeros(length(time_array),1);
@@ -28,8 +38,6 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
  
         if (angle_normalizer(q1(i-1)) < 1.7453 && angle_normalizer(q1(i-1)) > 1.3963 && angle_normalizer(q2(i-1)) < 0.1745 && angle_normalizer(q2(i-1))> -0.1745)
             internal_controller = 'LQR';
-            q1d(i-1);
-            q2d(i-1);
         else 
             internal_controller = 'SwingUp';
         end
@@ -74,15 +82,9 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, n
                 qdes = acr.alpha*atan(q1d(i-1));
             end
             
-            %dallo
-
-        
-    
-
             % Joint Accelerations
-    
-            q1dd(i) = (-342.1693)*(q1(i-1)-qdes)+(-93.4274)*q2(i-1)+(-134.5067)*q1d(i-1)+(-43.8441)*q2d(i-1)+(-2.0645)*Torque(i-1);
-            q2dd(i) = (941.0351)*(q1(i-1)-qdes)+(256.5265)*q2(i-1)+(362.7871)*q1d(i-1)+(118.2550)*q2d(i-1)+(5.5683)*Torque(i-1);
+            q1dd(i) = Ac(3,1)*(q1(i-1)-qdes)+Ac(3,2)*q2(i-1)+Ac(3,3)*q1d(i-1)+Ac(3,4)*q2d(i-1)+Bc(3)*Torque(i-1);
+            q2dd(i) = Ac(4,1)*(q1(i-1)-qdes)+Ac(4,2)*q2(i-1)+Ac(4,3)*q1d(i-1)+Ac(4,4)*q2d(i-1)+Bc(4)*Torque(i-1);
  
             % Joint Velocities
             q1d(i) = q1d(i-1)+delta_t*q1dd(i);
