@@ -2,13 +2,13 @@ clear all; close all; clc;
 
 acr = AcrobotParameters('num'); 
 % Choose collocated or non-collocated implementation.
-acr.controller_type = 'noncollocated'; % Choose: noncollocated, collocated.
+acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
 
 % Initial conditions:
 init = [-pi/2+0.1  0   0   0]';
 
 % Simulation duration
-duration = 10;
+duration = 30;
 time_step = 1.0e-03;
 animationSpeed = 2;
 
