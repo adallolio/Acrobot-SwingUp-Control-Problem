@@ -28,7 +28,8 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, d
     q2d(1) = init(4);
     Torque = zeros(length(time_array),1);
     aux = zeros(length(time_array),1);
-
+    control_action = zeros(length(time_array),1);
+    delta_angle = deg2rad(10);
     %internal_controller = 'SwingUp';
     for i= 2:1:length(time_array)
 
@@ -36,12 +37,15 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, d
         %internal_controller = 'SwingUp';
         aux(i-1) = det(M); 
  
-        if (angle_normalizer(q1(i-1)) < 1.7453 && angle_normalizer(q1(i-1)) > 1.3963 && angle_normalizer(q2(i-1)) < 0.1745 && angle_normalizer(q2(i-1))> -0.1745)
+        
+        if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle  && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
             internal_controller = 'LQR';
+            control_action(i-1) = 1;
         else 
             internal_controller = 'SwingUp';
+            control_action(i-1) = -1;
         end
-        %internal_controller = 'SwingUp';
+        internal_controller = 'SwingUp';
 
         % Select the type of Strategy for Torque
         if strcmp(acr.controller_type,'noncollocated')
@@ -72,14 +76,16 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, d
             q1d(i) = q1d(i-1) + delta_t*q1dd(i-1);
             q2d(i) = q2d(i-1) + delta_t*q2dd(i-1);
             % Joint Positions
-            q1(i) = q1(i-1) + q1d(i)*delta_t;
-            q2(i) = q2(i-1) + q2d(i)*delta_t;
+            q1(i) = q1(i-1) + q1d(i-1)*delta_t;
+            q2(i) = q2(i-1) + q2d(i-1)*delta_t;
         elseif strcmp(internal_controller,'LQR')
             
             if strcmp(acr.controller_type,'noncollocated')
                 qdes = acr.goal;
             else
-                qdes = acr.alpha*atan(q1d(i-1));
+                %qdes = acr.alpha*atan(q1d(i-1));
+                qdes = pi;
+                aux(i) = qdes;
             end
             
             % Joint Accelerations
@@ -97,7 +103,7 @@ function [ time_array, states_array, Torque] = ComputeDynamics(init, duration, d
         
     end
 
-states_array = [q1 q1d q1dd q2 q2d q2dd Torque,aux];
+states_array = [q1 q1d q1dd q2 q2d q2dd Torque, control_action, aux];
 
 end
 
