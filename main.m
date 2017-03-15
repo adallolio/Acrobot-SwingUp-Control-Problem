@@ -7,10 +7,10 @@ acr = AcrobotParameters('num');
 acr.controller_type = 'noncollocated';
 
 % Initial conditions:
-init = [-pi/2  0   0   0]';
+init = [-pi/2+0.1  0   0   0]';
 
 % Simulation duration
-duration = 40;
+duration = 10;
 time_step = 1.0e-03;
 animationSpeed = 2;
 
@@ -44,7 +44,6 @@ animationSpeed = 2;
 
         if strcmp (acr.controller_type, 'collocated')
             qdes(i-1) = acr.alpha*atan(q1d(i-1));
-
             d2bar = M(2,2) - M(2,1)*(1/M(1,1))*M(1,2);
             h2bar = C(2) - M(2,1)*(1/M(1,1))*C(1);
             phi2bar = G(2) - M(2,1)*(1/M(1,1))*G(1);
@@ -52,7 +51,6 @@ animationSpeed = 2;
             Torque(i-1) = d2bar*v2 + h2bar + phi2bar;
         else 
             qdes(i-1) = acr.goal;
-
             d1bar = M(2,1)-M(2,2)\M(1,2)*M(1,1);
             h1bar = C(2)-M(2,2)\M(1,2)*C(1);
             phi1bar = G(2)-M(2,2)\M(1,2)*G(1);
@@ -103,12 +101,14 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 
 figure()
 subplot(4,1,1); 
-plot(time_array,rad2deg(mod(pos1,2*pi)),'b',time_array, rad2deg(mod(pos2,2*pi)),'r');
+%plot(time_array,rad2deg(mod(pos1,2*pi)),'b',time_array, rad2deg(mod(pos2,2*pi)),'r');
+plot(time_array,mod(pos1,2*pi),'b',time_array,mod(pos2,2*pi),'r');
 title('Joints position')
 legend('q1','q2')
 
 subplot(4,1,2); 
-plot(time_array,vel1*57.2957795130824,'b',time_array,vel2*57.2957795130824,'r')
+%plot(time_array,vel1*57.2957795130824,'b',time_array,vel2*57.2957795130824,'r')
+plot(time_array,vel1,'b',time_array,vel2,'r')
 title('Joints Velocity')
 legend('q1d','q2d')
 
@@ -122,7 +122,9 @@ plot(time_array,torq,'r')
 title('Torque at second Joint')
 legend('Torque')
 
+%{
 figure()
 plot(time_array,rad2deg(qdes),'r')
 title('qdes')
 legend('qdes')
+%}
