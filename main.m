@@ -4,10 +4,10 @@ acr = AcrobotParameters('num');
 % Choose collocated or non-collocated implementation.
 
 %acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
-acr.controller_type = 'collocated';
+acr.controller_type = 'noncollocated';
 
 % Initial conditions:
-init = [-pi/2+0.01  0   0   0]';
+init = [-pi/2  0   0   0]';
 
 % Simulation duration
 duration = 40;
@@ -29,7 +29,7 @@ animationSpeed = 2;
     q2dd = zeros(length(time_array),1);
     q2d(1) = init(4);
 
-    q2des = zeros(length(time_array),1);
+    qdes = zeros(length(time_array),1);
 
     Torque = zeros(length(time_array),1);
     
@@ -42,14 +42,23 @@ animationSpeed = 2;
 
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
 
+        if strcmp (acr.controller_type, 'collocated')
+            qdes(i-1) = acr.alpha*atan(q1d(i-1));
 
-        q2des(i-1) = acr.alpha*atan(q1d(i-1));
+            d2bar = M(2,2) - M(2,1)*(1/M(1,1))*M(1,2);
+            h2bar = C(2) - M(2,1)*(1/M(1,1))*C(1);
+            phi2bar = G(2) - M(2,1)*(1/M(1,1))*G(1);
+            v2 = -acr.kd2*q2d(i-1) + acr.kp2*(qdes(i-1) - q2(i-1));
+            Torque(i-1) = d2bar*v2 + h2bar + phi2bar;
+        else 
+            qdes(i-1) = acr.goal;
 
-        d2bar = M(2,2) - M(2,1)*(1/M(1,1))*M(1,2);
-        h2bar = C(2) - M(2,1)*(1/M(1,1))*C(1);
-        phi2bar = G(2) - M(2,1)*(1/M(1,1))*G(1);
-        v2 = -acr.kd2*q2d(i-1) + acr.kp2*(q2des(i-1) - q2(i-1));
-        Torque(i-1) = d2bar*v2 + h2bar + phi2bar;
+            d1bar = M(2,1)-M(2,2)\M(1,2)*M(1,1);
+            h1bar = C(2)-M(2,2)\M(1,2)*C(1);
+            phi1bar = G(2)-M(2,2)\M(1,2)*G(1);
+            v1 = -acr.kd1*q1d(i-1) + acr.kp1*(qdes(i-1) - q1(i-1));
+            Torque(i-1) = d1bar*v1 + h1bar + phi1bar;
+        end
 
         % Controls the torque saturation
         if Torque(i-1)>acr.saturation_limit
@@ -90,7 +99,7 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 % velocities and accelerations are plotted.
 %makeplot('pos1','pos2',time_array,zarray,animationSpeed,Torque,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
-Plotter
+%Plotter
 
 figure()
 subplot(4,1,1); 
@@ -114,6 +123,6 @@ title('Torque at second Joint')
 legend('Torque')
 
 figure()
-plot(time_array,rad2deg(q2des),'r')
+plot(time_array,rad2deg(qdes),'r')
 title('qdes')
 legend('qdes')
