@@ -5,9 +5,6 @@ acr = AcrobotParameters('num');
 
 %acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
 acr.controller_type = 'collocated';
-% Defines the type of controller to use at the begining of the simulation
-% Choose: SwingUp or LQR
-acr.internal_controller = 'SwingUp';
 
 % Initial conditions:
 init = [-pi/2+0.1  0   0   0]';
@@ -18,6 +15,8 @@ goal = [acr.goal, 0.0, 0.0, 0.0];
 % Defines the type of LQR controller
 % Calls the State Space Matrices for the LQR Controller
 SS = load('SS_Matrices.mat');
+[Ac, Bc, ~, ~, ~] = ComputesLQR(SS.A1, SS.B1);
+%{
 if strcmp(acr.controller_type,'noncollocated')
     [Ac, Bc, ~, ~, ~] = ComputesLQR(SS.ANonColl, SS.BNonColl);
 elseif strcmp(acr.controller_type,'collocated')
@@ -25,6 +24,7 @@ elseif strcmp(acr.controller_type,'collocated')
 else
     [Ac, Bc, ~, ~, ~] = ComputesLQR(SS.AGeneral, SS.BGeneral);
 end
+%}
 
 % Simulation duration
 duration = 30;
@@ -51,10 +51,11 @@ control_action= zeros(length(time_array),1);
 aux = zeros(length(time_array),1);
 
 % Define the delta to activate the LQR controller
-delta_angle = deg2rad(2);
+delta_angle = deg2rad(20);
 
     for i= 2:1:length(time_array)
 
+        % Defines the type of controller to use at this step
         if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
             acr.internal_controller = 'LQR';
             control_action(i-1) = 1;
@@ -71,14 +72,23 @@ delta_angle = deg2rad(2);
             d2bar = M(2,2) - M(2,1)*(1/M(1,1))*M(1,2);
             h2bar = C(2) - M(2,1)*(1/M(1,1))*C(1);
             phi2bar = G(2) - M(2,1)*(1/M(1,1))*G(1);
-            v2 = -acr.kd2*q2d(i-1) + acr.kp2*(qdes(i-1) - q2(i-1));
+            if strcmp (acr.internal_controller, 'SwingUp')
+                v2 = -acr.kd2*q2d(i-1) + acr.kp2*(qdes(i-1) - q2(i-1));
+            else
+                qdes(i-1) = 0.0;
+                v2 = Ac(4,1)*(q1(i-1))+Ac(4,2)*(q2(i-1)-qdes(i-1))+Ac(4,3)*q1d(i-1)+Ac(4,4)*q2d(i-1)+Bc(4)*Torque(i-1);
+            end
             Torque(i-1) = d2bar*v2 + h2bar + phi2bar;
         else 
             qdes(i-1) = acr.goal;
             d1bar = M(2,1)-M(2,2)\M(1,2)*M(1,1);
             h1bar = C(2)-M(2,2)\M(1,2)*C(1);
             phi1bar = G(2)-M(2,2)\M(1,2)*G(1);
-            v1 = -acr.kd1*q1d(i-1) + acr.kp1*(qdes(i-1) - q1(i-1));
+            if strcmp (acr.internal_controller, 'SwingUp')
+                v1 = -acr.kd1*q1d(i-1) + acr.kp1*(qdes(i-1) - q1(i-1));
+            else
+                v1 = Ac(3,1)*(q1(i-1)-qdes(i-1))+Ac(3,2)*q2(i-1)+Ac(3,3)*q1d(i-1)+Ac(3,4)*q2d(i-1)+Bc(3)*Torque(i-1);
+            end
             Torque(i-1) = d1bar*v1 + h1bar + phi1bar;
         end
 
@@ -89,19 +99,10 @@ delta_angle = deg2rad(2);
             Torque(i-1) = acr.saturation_limit;
         end
 
-        if strcmp (acr.internal_controller, 'SwingUp')
-            q2dd(i-1) = M(1,1)*(Torque(i-1)-C(2)-G(2))+M(1,2)*(C(1)+G(1))/(M(1,1)*M(2,2)-M(1,2)^2);
-            q1dd(i-1) = -(M(1,2)*q2dd(i-1)+C(1)+G(1))/(M(1,1));
-        else
-            if strcmp (acr.controller_type, 'collocated')
-                qdes(i-1) = 0.0;
-                q1dd(i) = Ac(3,1)*(q1(i-1))+Ac(3,2)*(q2(i-1)-qdes(i-1))+Ac(3,3)*q1d(i-1)+Ac(3,4)*q2d(i-1)+Bc(3)*Torque(i-1);
-                q2dd(i) = Ac(4,1)*(q1(i-1))+Ac(4,2)*(q2(i-1)-qdes(i-1))+Ac(4,3)*q1d(i-1)+Ac(4,4)*q2d(i-1)+Bc(4)*Torque(i-1);
-            else
-                q1dd(i) = Ac(3,1)*(q1(i-1)-qdes(i-1))+Ac(3,2)*q2(i-1)+Ac(3,3)*q1d(i-1)+Ac(3,4)*q2d(i-1)+Bc(3)*Torque(i-1);
-                q2dd(i) = Ac(4,1)*(q1(i-1)-qdes(i-1))+Ac(4,2)*q2(i-1)+Ac(4,3)*q1d(i-1)+Ac(4,4)*q2d(i-1)+Bc(4)*Torque(i-1);
-            end
-        end
+        % Joit Accelerations
+        q2dd(i-1) = M(1,1)*(Torque(i-1)-C(2)-G(2))+M(1,2)*(C(1)+G(1))/(M(1,1)*M(2,2)-M(1,2)^2);
+        q1dd(i-1) = -(M(1,2)*q2dd(i-1)+C(1)+G(1))/(M(1,1));
+    
     	% Joint Velocities
         q1d(i) = q1d(i-1) + time_step*q1dd(i-1);
         q2d(i) = q2d(i-1) + time_step*q2dd(i-1);
@@ -161,8 +162,9 @@ figure()
 plot(time_array,rad2deg(qdes),'r')
 title('qdes')
 legend('qdes')
+%}
 figure()
 plot(time_array,control_action,'r')
 title('qdes')
 legend('qdes')
-%}
+

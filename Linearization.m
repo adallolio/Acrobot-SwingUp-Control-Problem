@@ -50,5 +50,20 @@ Bjuan = jacobian([acr.q1d,acr.q2d,q1dd_juan,q2dd_juan],acr.T2);
 AColl = double(subs(Ajuan,[acr.m1,acr.m2, acr.g0,acr.l1,acr.lc1,acr.lc2,acr.I1,acr.I2,acr.q1,acr.q2,acr.q1d,acr.q2d,acr.T2],[acr2.m1,acr2.m2,acr2.g0,acr2.l1,acr2.lc1,acr2.lc2,acr2.I1,acr2.I2,init(1),init(2),init(3),init(4),init(5)]));
 BColl = double(subs(Bjuan,[acr.m1,acr.m2, acr.g0,acr.l1,acr.lc1,acr.lc2,acr.I1,acr.I2,acr.q1,acr.q2,acr.q1d,acr.q2d,acr.T2],[acr2.m1,acr2.m2,acr2.g0,acr2.l1,acr2.lc1,acr2.lc2,acr2.I1,acr2.I2,init(1),init(2),init(3),init(4),init(5)]));
 
+%% State space matrices taken from the paper
+
+A1 = [0, 0, 1, 0;
+      0, 0, 0, 1;
+      12.49, -12.54, 0, 0;
+      -14.49, 29.36, 0, 0];
+B1 = [0, 0, -2.98, 5.98]';
+
+A2 = [0, 0, 1, 0;
+      0, 0, 0, 1;
+      49.47, -5.5, 0, 0;
+      -50.01, 66.23, 0, 0];
+B2 = [0, 0, -0.61, 1.43]';
+
+
 %% Save the State Space matrices
-save('SS_Matrices.mat', 'AColl', 'AGeneric', 'ANonColl', 'BColl', 'BGeneric', 'BNonColl');
+save('SS_Matrices.mat', 'AColl', 'AGeneric', 'ANonColl', 'BColl', 'BGeneric', 'BNonColl', 'A1', 'B1', 'A2', 'B2');
