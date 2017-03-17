@@ -9,7 +9,7 @@ acr.controller_type = 'collocated';
 % Initial conditions:
 init = [-pi/2+0.1  0   0   0]';
 
-% Goal positioon and velocity
+% Goal position and velocity
 goal = [acr.goal, 0.0, 0.0, 0.0];
 
 % Defines the type of LQR controller
@@ -157,14 +157,14 @@ plot(time_array,torq,'r')
 title('Torque at second Joint')
 legend('Torque')
 
-%{
+
 figure()
 plot(time_array,rad2deg(qdes),'r')
 title('qdes')
 legend('qdes')
-%}
+%{
 figure()
 plot(time_array,control_action,'r')
 title('qdes')
 legend('qdes')
-
+%}
