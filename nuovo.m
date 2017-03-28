@@ -8,6 +8,8 @@ acr.controller_type = 'collocated';
 
 SS = load('SS_Matrices.mat');
 [Ac, Bc, ~, ~, K] = ComputesLQR(SS.AColl, SS.BColl);
+A = SS.AColl;
+B = SS.BColl;
 
 % Initial conditions:
 init = [-pi/2+0.01  0   0   0]';
