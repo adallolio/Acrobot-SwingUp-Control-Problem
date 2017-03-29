@@ -7,9 +7,7 @@ acr = AcrobotParameters('num');
 acr.controller_type = 'collocated';
 
 SS = load('SS_Matrices.mat');
-[Ac, Bc, ~, ~, K] = ComputesLQR(SS.AColl, SS.BColl);
-A = SS.AColl;
-B = SS.BColl;
+[~, ~, ~, ~, K] = ComputesLQR(SS.AColl, SS.BColl);
 
 % Initial conditions:
 init = [-pi/2+0.01  0   0   0]';
@@ -40,23 +38,25 @@ animationSpeed = 2;
     
     aux = zeros(length(time_array),1);
     control_action = zeros(length(time_array),1);
-    delta_angle = deg2rad(10);
+    delta_angle = deg2rad(20);
     lqrvar = true;
     
-    acr.internal_controller = 'SwingUp';
+    %acr.internal_controller = 'SwingUp';
     
     for i= 2:1:length(time_array)
 
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
         
-        if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
+        %if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
+        if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle)
             acr.internal_controller = 'LQR';
             control_action(i-1) = 1;
         else 
-            %acr.internal_controller = 'SwingUp';
+            acr.internal_controller = 'SwingUp';
             control_action(i-1) = -1;
         end
-
+        %acr.internal_controller = 'SwingUp';
+        
         q2des(i-1) = acr.alpha*atan(q1d(i-1));
 
         d2bar = M(2,2) - M(2,1)*(1/M(1,1))*M(1,2);
@@ -64,19 +64,18 @@ animationSpeed = 2;
         phi2bar = G(2) - M(2,1)*(1/M(1,1))*G(1);
 
         if strcmp (acr.internal_controller, 'SwingUp')
-                v2 = -acr.kd2*q2d(i-1) + acr.kp2*(q2des(i-1) - q2(i-1));
-                aux(i-1)=q2des(i-1)-q2(i-1);
-            else
-                q2des(i-1) = 0.0;
-                q1des = 0.0;
-                v2 = Ac(4,1)*(q1des - q1(i-1))+Ac(4,2)*(q2des(i-1)-q2(i-1))-Ac(4,3)*q1d(i-1)-Ac(4,4)*q2d(i-1)+Bc(4)*Torque(i-1);
-                %aux(i-1)=v2;
-                aux(i-1)=q2des(i-1)-q2(i-1);
-            end
-        Torque(i-1) = d2bar*v2 + h2bar + phi2bar;
-
-
-
+            v2 = -acr.kd2*q2d(i-1) + acr.kp2*(q2des(i-1) - q2(i-1));
+            aux(i-1)=q2des(i-1)-q2(i-1);
+            Torque(i-1) = d2bar*v2 + h2bar + phi2bar;
+        else
+            % This the desired value of q2 at equilibrium
+            q2des(i-1) = 0.0;
+            state_vec =[q1(i-1)-pi/2, q2(i-1)-q2des(i-1), q1d(i-1), q2d(i-1)]';
+            Torque(i-1) = -K*state_vec;
+            aux(i-1)=q2des(i-1)-q2(i-1);
+            
+         end
+        
         % Controls the torque saturation
         if Torque(i-1)>acr.saturation_limit
             Torque(i-1) = acr.saturation_limit;
@@ -143,10 +142,10 @@ legend('Torque')
 
 figure()
 plot(time_array,rad2deg(q2des),'r')
-title('qdes')
+title('Desired position of the second joint over time')
 legend('qdes')
 
 figure()
 plot(time_array,aux,'r',time_array,control_action,'b')
-title('aux')
-legend('aux')
+title('Feedback error')
+legend('Feedback error', 'Active controller')
