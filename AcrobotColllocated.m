@@ -3,7 +3,7 @@ clear all; close all; clc;
 acr = AcrobotParameters('num'); 
 % Choose collocated or non-collocated implementation.
 
-%acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
+acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
 acr.controller_type = 'collocated';
 
 SS = load('SS_Matrices.mat');
@@ -46,7 +46,7 @@ animationSpeed = 2;
     for i= 2:1:length(time_array)
 
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
-        
+                
         %if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
         if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle)
             acr.internal_controller = 'LQR';
@@ -59,14 +59,14 @@ animationSpeed = 2;
         
         q2des(i-1) = acr.alpha*atan(q1d(i-1));
 
-        d2bar = M(2,2) - M(2,1)*(1/M(1,1))*M(1,2);
+        M2bar = M(2,2) - M(2,1)*(1/M(1,1))*M(1,2);
         h2bar = C(2) - M(2,1)*(1/M(1,1))*C(1);
         phi2bar = G(2) - M(2,1)*(1/M(1,1))*G(1);
 
         if strcmp (acr.internal_controller, 'SwingUp')
             v2 = -acr.kd2*q2d(i-1) + acr.kp2*(q2des(i-1) - q2(i-1));
             aux(i-1)=q2des(i-1)-q2(i-1);
-            Torque(i-1) = d2bar*v2 + h2bar + phi2bar;
+            Torque(i-1) = M2bar*v2 + h2bar + phi2bar;
         else
             % This the desired value of q2 at equilibrium
             q2des(i-1) = 0.0;
@@ -115,7 +115,7 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 % velocities and accelerations are plotted.
 %makeplot('pos1','pos2',time_array,zarray,animationSpeed,Torque,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
-Plotter
+%Plotter
 
 figure()
 subplot(4,1,1); 
