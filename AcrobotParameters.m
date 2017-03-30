@@ -66,7 +66,7 @@ function [acr] = AcrobotParameters(type)
         acr.kp2 = kp2;
     end
 
-    acr.saturation_limit = 20000; % Actuator Saturation
+    acr.saturation_limit = 50000; % Actuator Saturation
 
 end
 

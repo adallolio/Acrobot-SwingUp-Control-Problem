@@ -3,7 +3,7 @@ clear all; close all; clc;
 acr = AcrobotParameters('num'); 
 
 SS = load('SS_Matrices.mat');
-[~, ~, ~, ~, K] = ComputesLQR(SS.AGeneric, SS.BGeneric);
+[~, ~, ~, ~, K] = ComputesLQR(SS.AColl, SS.BColl);
 
 % Initial conditions:
 init = [-pi/2+0.1  0   0   0]';
@@ -32,7 +32,7 @@ animationSpeed = 2;
     
     aux = zeros(length(time_array),1);
     control_action = zeros(length(time_array),1);
-    delta_angle = deg2rad(10);
+    delta_angle = deg2rad(20);
     
     %acr.internal_controller = 'SwingUp';
     
@@ -40,7 +40,7 @@ animationSpeed = 2;
 
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
         
-        aux(i-1) = 1/M(1,1);
+        aux(i-1) = M(1,2)^2-M(1,1)*M(2,2);
         
         %if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
         if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle )
@@ -52,17 +52,18 @@ animationSpeed = 2;
         end
         acr.internal_controller = 'SwingUp';
       
-
+        %{
 		M1bar = M(2,1)-M(2,2)\M(1,2)*M(1,1);
         h1bar = C(2)-M(2,2)\M(1,2)*C(1);
         phi1bar = G(2)-M(2,2)\M(1,2)*G(1);
-		
-		%{
-        M1bar = M(2,1) - (M(2,2)*M(1,1))/M(1,2);
-        h1bar = C(2) - (M(2,2)*C(1))/M(1,2);
-        phi1bar = G(2) - (M(2,2)*G(1))/M(1,2);
 		%}
-
+        
+        %%{
+        M1bar = M(2,1)-M(2,2)*(1/M(1,2))*M(1,1);
+        h1bar = C(2)-M(2,2)*(1/M(1,2))*C(1);
+        phi1bar = G(2)-M(2,2)*(1/M(1,2))*G(1);
+        %%}
+        
         if strcmp (acr.internal_controller, 'SwingUp')
             v1 = -acr.kd1*q1d(i-1) + acr.kp1*(pi/2 - q1(i-1));
             Torque(i-1) = M1bar*v1 + h1bar + phi1bar;
@@ -80,8 +81,8 @@ animationSpeed = 2;
             Torque(i-1) = acr.saturation_limit;
         end
 
-        q2dd(i-1) = M(1,1)*(Torque(i-1)-C(2)-G(2))+M(1,2)*(C(1)+G(1))/(M(1,1)*M(2,2)-M(1,2)^2);
-    	q1dd(i-1) = -(M(1,2)*q2dd(i-1)+C(1)+G(1))/(M(1,1));
+        q1dd(i-1) = (M(1,2)*(Torque(i-1)-C(2)-G(2))+M(2,2)*(C(1)+G(1)))/(M(1,2)^2-M(1,1)*M(2,2));
+    	q2dd(i-1) = -(M(1,1)*q1dd(i-1)+C(1)+G(1))/(M(1,2));
 
     	% Joint Velocities
         q1d(i) = q1d(i-1) + time_step*q1dd(i-1);
@@ -144,5 +145,5 @@ legend('Active controller')
 
 figure()
 plot(time_array,aux,'r')
-title('M12')
-legend('M12')
+title('Denominator of q1dd')
+legend('')
