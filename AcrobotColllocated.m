@@ -3,11 +3,8 @@ clear all; close all; clc;
 acr = AcrobotParameters('num'); 
 % Choose collocated or non-collocated implementation.
 
-acr.controller_type = 'collocated'; % Choose: noncollocated, collocated.
-acr.controller_type = 'collocated';
-
 SS = load('SS_Matrices.mat');
-[~, ~, ~, ~, K] = ComputesLQR(SS.AColl, SS.BColl);
+[~, ~, ~, ~, K] = ComputesLQR(SS.AGeneric, SS.BGeneric);
 
 % Initial conditions:
 init = [-pi/2+0.01  0   0   0]';
@@ -80,7 +77,7 @@ animationSpeed = 2;
         if Torque(i-1)>acr.saturation_limit
             Torque(i-1) = acr.saturation_limit;
         elseif Torque(i-1)<-acr.saturation_limit;
-            Torque(i-1) = acr.saturation_limit;
+            Torque(i-1) = -acr.saturation_limit;
         end
 
         q2dd(i-1) = M(1,1)*(Torque(i-1)-C(2)-G(2))+M(1,2)*(C(1)+G(1))/(M(1,1)*M(2,2)-M(1,2)^2);

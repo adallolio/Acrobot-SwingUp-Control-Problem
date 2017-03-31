@@ -3,10 +3,10 @@ clear all; close all; clc;
 acr = AcrobotParameters('num'); 
 
 SS = load('SS_Matrices.mat');
-[~, ~, ~, ~, K] = ComputesLQR(SS.AColl, SS.BColl);
+[~, ~, ~, ~, K] = ComputesLQR(SS.AGeneric, SS.BGeneric);
 
 % Initial conditions:
-init = [-pi/2+0.1  0   0   0]';
+init = [-pi/2  0   0   0]';
 
 % Simulation duration
 duration = 10;
@@ -32,7 +32,7 @@ animationSpeed = 2;
     
     aux = zeros(length(time_array),1);
     control_action = zeros(length(time_array),1);
-    delta_angle = deg2rad(20);
+    delta_angle = deg2rad(10);
     
     %acr.internal_controller = 'SwingUp';
     
@@ -40,17 +40,17 @@ animationSpeed = 2;
 
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
         
-        aux(i-1) = M(1,2)^2-M(1,1)*M(2,2);
+        %aux(i-1) = M(1,2)^2-M(1,1)*M(2,2);
         
         %if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
-        if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle )
+        if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && q2d(i-1)>-6.28 && q2d(i-1)<6.28)
             acr.internal_controller = 'LQR';
             control_action(i-1) = 1;
         else 
             acr.internal_controller = 'SwingUp';
             control_action(i-1) = -1;
         end
-        acr.internal_controller = 'SwingUp';
+        %acr.internal_controller = 'SwingUp';
       
         %{
 		M1bar = M(2,1)-M(2,2)\M(1,2)*M(1,1);
@@ -66,6 +66,7 @@ animationSpeed = 2;
         
         if strcmp (acr.internal_controller, 'SwingUp')
             v1 = -acr.kd1*q1d(i-1) + acr.kp1*(pi/2 - q1(i-1));
+            aux(i-1) = v1;
             Torque(i-1) = M1bar*v1 + h1bar + phi1bar;
         else
             % This the desired value of q1 at equilibrium
@@ -78,7 +79,7 @@ animationSpeed = 2;
         if Torque(i-1)>acr.saturation_limit
             Torque(i-1) = acr.saturation_limit;
         elseif Torque(i-1)<-acr.saturation_limit;
-            Torque(i-1) = acr.saturation_limit;
+            Torque(i-1) = -acr.saturation_limit;
         end
 
         q1dd(i-1) = (M(1,2)*(Torque(i-1)-C(2)-G(2))+M(2,2)*(C(1)+G(1)))/(M(1,2)^2-M(1,1)*M(2,2));
