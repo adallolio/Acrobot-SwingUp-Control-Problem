@@ -9,7 +9,7 @@ SS = load('SS_Matrices.mat');
 init = [-pi/2  0   0   0]';
 
 % Simulation duration
-duration = 10;
+duration = 40;
 time_step = 1.0e-03;
 animationSpeed = 2;
 
@@ -35,7 +35,7 @@ animationSpeed = 2;
     delta_angle = deg2rad(10);
     
     %acr.internal_controller = 'SwingUp';
-    
+
     for i= 2:1:length(time_array)
 
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
@@ -43,7 +43,7 @@ animationSpeed = 2;
         %aux(i-1) = M(1,2)^2-M(1,1)*M(2,2);
         
         %if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
-        if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && q2d(i-1)>-6.28 && q2d(i-1)<6.28)
+        if (angle_normalizer(q1(i-1)) <= acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && q2d(i-1)>=-6.28 && q2d(i-1)<6.28)
             acr.internal_controller = 'LQR';
             control_action(i-1) = 1;
         else 
@@ -91,8 +91,7 @@ animationSpeed = 2;
         % Joint Positions
         q1(i) = q1(i-1) + q1d(i-1)*time_step;
         q2(i) = q2(i-1) + q2d(i-1)*time_step;
-    end
-        
+    end 
 
 zarray = [q1 q1d q1dd q2 q2d q2dd Torque, control_action, aux];
 
@@ -114,7 +113,7 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 % velocities and accelerations are plotted.
 %makeplot('pos1','pos2',time_array,zarray,animationSpeed,Torque,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
-%Plotter
+Plotter
 
 figure()
 subplot(4,1,1); 

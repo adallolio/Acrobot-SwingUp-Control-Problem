@@ -21,8 +21,8 @@ function [acr] = AcrobotParameters(type)
 
         % For link 1 linearization (noncollocated):
         acr.goal = pi/2;
-        acr.kd1 = 6.4;
-        acr.kp1 = 16;
+        acr.kd1 = 5;
+        acr.kp1 = 3;
 
         % For link 2 linearization (collocated):
         acr.alpha = 1; % "pumping" angle

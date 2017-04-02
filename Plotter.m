@@ -65,7 +65,7 @@ hold on
 torquePlot = plot(0,0,'r');
 %axis([0,endtime,max(min(time_array)-abs(min(time_array))*0.1-0.1,-max(time_array)),min(max(time_array)*1.1,-min(time_array)*1.1)]); %size to fit whatever output given
 xlim([0,endtime])
-ylim([min(time_array)-1, max(time_array)+1])
+ylim([min(torq)-1, max(torq)+1])
 xlabel('Time (s)','FontSize',16)
 ylabel('Torque (Nm)','FontSize',16)
 hold off
@@ -110,7 +110,7 @@ while toc<endtime/playback
     
     %Make the power profile also plot out over time simultaneously.
     set(torquePlot,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
-    set(torquePlot,'yData',time_array(plotInd))
+    set(torquePlot,'yData',torq(plotInd))
     
     drawnow;
 end

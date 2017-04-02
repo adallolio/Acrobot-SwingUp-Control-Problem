@@ -45,7 +45,7 @@ animationSpeed = 2;
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
                 
         %if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
-        if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle)
+        if (angle_normalizer(q1(i-1)) <= acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle)
             acr.internal_controller = 'LQR';
             control_action(i-1) = 1;
         else 
@@ -112,7 +112,7 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 % velocities and accelerations are plotted.
 %makeplot('pos1','pos2',time_array,zarray,animationSpeed,Torque,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
-%Plotter
+Plotter
 
 figure()
 subplot(4,1,1); 
