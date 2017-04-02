@@ -95,12 +95,12 @@ animationSpeed = 2;
 
 zarray = [q1 q1d q1dd q2 q2d q2dd Torque, control_action, aux];
 
-pos1 = zarray(:,1); %for plots
-pos2 = zarray(:,4);%angle_normalizer(zarray(:,4)); %for plots
-vel1 = zarray(:,2); %for plots
-vel2 = zarray(:,5); %for plots
-acc1 = zarray(:,3); %for plots
-acc2 = zarray(:,6); %for plots
+pos1 = rad2deg(zarray(:,1)); %for plots
+pos2 = rad2deg(zarray(:,4)); %angle_normalizer(zarray(:,4)); %for plots
+vel1 = rad2deg(zarray(:,2)); %for plots
+vel2 = rad2deg(zarray(:,5)); %for plots
+acc1 = rad2deg(zarray(:,3)); %for plots
+acc2 = rad2deg(zarray(:,6)); %for plots
 torq = zarray(:,7);
 control_action = zarray(:,8);
 
@@ -120,30 +120,46 @@ subplot(4,1,1);
 plot(time_array,mod(pos1,2*pi),'b',time_array,mod(pos2,2*pi) ,'r');
 title('Joints position')
 legend('q1','q2')
-%rad2deg(mod(pos1,2*pi))
-%rad2deg(mod(pos2,2*pi))
+ylim([min(min([pos1,pos2]))-100, max(max([pos1,pos2]))+100])
+ylabel('deg','FontSize',16)
 
 subplot(4,1,2); 
-plot(time_array,vel1*57.2957795130824,'b',time_array,vel2*57.2957795130824,'r')
+plot(time_array,vel1,'b',time_array,vel2,'r')
+grid
 title('Joints Velocity')
 legend('q1d','q2d')
+ylabel('deg/sec','FontSize',16)
 
 subplot(4,1,3); 
 plot(time_array,acc1,'b',time_array,acc2,'r')
+grid
 title('Joints Acceleration')
 legend('q1dd','q2dd')
+ylabel('deg/sec^2','FontSize',16)
 
 subplot(4,1,4); 
 plot(time_array,torq,'r')
+grid
 title('Torque at second Joint')
 legend('Torque')
+xlabel('Time (s)','FontSize',16)
+ylabel('Nm','FontSize',16)
+
 
 figure()
-plot(time_array,control_action,'r')
-title('Active error')
-legend('Active controller')
 
-figure()
+subplot(2,1,1)
 plot(time_array,aux,'r')
-title('Denominator of q1dd')
-legend('')
+grid
+title('Control input v1')
+xlim([0 42])
+ylim([min(aux)-1 max(aux)+1])
+
+subplot(2,1,2)
+plot(time_array,control_action,'r')
+grid
+title('Controller type')
+legend('Active controller')
+xlim([0 40])
+ylim([min(control_action)-1 max(control_action)+1])
+xlabel('Time (s)','FontSize',16)

@@ -1,25 +1,14 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Animate the acrobot after the MAIN script has been run.
-%
-%   Matthew Sheen, 2014
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 close all
 
-%Playback speed:
+%Playback speed
 playback = animationSpeed;
-
-%Repeat button
-h = uicontrol('Style', 'pushbutton', 'String', 'Repeat',...
-    'Position', [10 20 75 50], 'Callback', 'Plotter');
 
 time = time_array;
 endtime = time_array(end);
 
 %%%%%%%% 1st Subplot -- the pendulum animation %%%%%%%
 
-subplot(3,4,[1 2 5 6 9 10]) %4x2 grid with animation taking the top panel of 3x2
+subplot(3,4,[1 1.75 5 5.75 9 9.75]) %4x2 grid with animation taking the top panel of 3x2
 axis equal
 hold on
 
@@ -27,69 +16,74 @@ hold on
 width1 = acr.l1*0.05;
 ydat1 = 0.5*width1*[-1 1 1 -1];
 xdat1 = acr.l1*[0 0 1 1];
-link1 = patch(xdat1,ydat1, [0 0 0 0],'r');
+link1 = patch(xdat1,ydat1, [0 0 0 0],'b');
 
 %Create pendulum link2 object:
 width2 = acr.l2*0.05;
 ydat2 = 0.5*width2*[-1 1 1 -1];
 xdat2 = acr.l2*[0 0 1 1];
 link2 = patch(xdat2,ydat2, [0 0 0 0],'b');
-axis([-3.5 3.5 -3.6 3.6]);
+axis([-2.0 2.0 -2.6 2.6]); 
+plot([0 0],[0 2.6],'--','Color','k','linewidth',0.2);
 
 %Dots for the hinges:
 h1 = plot(0,0,'.k','MarkerSize',40); %First link anchor
 h2 = plot(0,0,'.k','MarkerSize',40); %link1 -> link2 hinge
 
-%Timer label:
-timer = text(-3.2,-3.2,'0.00','FontSize',28);
 hold off
 
 %%%%%%%% 2nd Subplot -- the system energy %%%%%%%
 subplot(3,4,[3 4])
 hold on
-
+grid on
 %Find the desired energy when the system is balanced.
-energyPlot = plot(0,0,'b'); %Energy plot over time.
+energyPlot = plot(0,0,'r'); %Energy plot over time.
 % plot([0,endtime],[desEnergy,desEnergy],'r'); %The line showing the target energy
 
 axis([0,endtime,min(energy)-1,max(energy) + 1]); %size to fit energy bounds and timescale
 
-xlabel('Time (s)','FontSize',16)
 ylabel('Energy (J)','FontSize',16)
 
 hold off
 
 %%%%%%%% 3rd Subplot -- the control torque %%%%%%%
-subplot(3,4,[7 8 11 12])
+subplot(3,4,[7 8])
 hold on
+grid on
 torquePlot = plot(0,0,'r');
 %axis([0,endtime,max(min(time_array)-abs(min(time_array))*0.1-0.1,-max(time_array)),min(max(time_array)*1.1,-min(time_array)*1.1)]); %size to fit whatever output given
 xlim([0,endtime])
 ylim([min(torq)-1, max(torq)+1])
-xlabel('Time (s)','FontSize',16)
 ylabel('Torque (Nm)','FontSize',16)
+hold off
+
+%%%%%%%% 4rd Subplot -- vars %%%%%%%
+subplot(3,4,[11 12])
+hold on
+grid on
+
+positionPlot1 = plot(0,0,'r');
+positionPlot2 = plot(0,0,'b');
+%axis([0,endtime,max(min(zarray(:,2))-abs(min(zarray(:,2)))*0.1-0.1,-max(zarray(:,2))),min(max(zarray(:,2))*1.1,-min(zarray(:,2))*1.1)]); %size to fit whatever output given
+xlim([0,endtime])
+ylim([min(min([pos1,pos2]))-100, max(max([pos1,pos2]))+100])
+
+xlabel('Time (s)','FontSize',16)
+ylabel('Position (deg/s)','FontSize',16)
 hold off
 
 %Make the whole window big for handy viewing:
 set(gcf, 'units', 'inches', 'position', [5 5 18 9])
 
-%Animation plot loop:
+%Animation loop:
 tic %Start the clock
 while toc<endtime/playback
-    
-    %If i close the figure, this prevents the error message (anal
-    %programming)
-    if ishandle(1) == 0
-        break;
-    end
-    
+
     tstar = playback*toc; %Get the time (used during this entire iteration)
-    %On screen timer.
-    set(timer,'string',strcat(num2str(tstar,3),'s'))
     zstar = interp1(time,zarray,tstar); %Interpolate data at this instant in time.
     
-    %Rotation matrices to manipulate the vertices of the patch objects
-    %using theta1 and theta2 from the output state vector.
+    %Rotation matrices to manipulate the vertices
+    %using q1 and q2 from the output state vector.
     rot1 = [cos(zstar(1)), -sin(zstar(1)); sin(zstar(1)),cos(zstar(1))]*[xdat1;ydat1];
     set(link1,'xData',rot1(1,:))
     set(link1,'yData',rot1(2,:))
@@ -112,6 +106,11 @@ while toc<endtime/playback
     set(torquePlot,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
     set(torquePlot,'yData',torq(plotInd))
     
+    set(positionPlot1,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
+    set(positionPlot1,'yData',pos1(plotInd))
+    set(positionPlot2,'xData',time(plotInd)) %Plot all points that occur before our current time (not bothering with interpolation given the scale)
+    set(positionPlot2,'yData',pos2(plotInd))
+
     drawnow;
 end
 
