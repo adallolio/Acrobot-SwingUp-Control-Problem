@@ -1,4 +1,4 @@
-clear all; close all; clc;
+%clear all; close all; clc;
 
 acr = AcrobotParameters('num'); 
 
@@ -9,32 +9,25 @@ SS = load('SS_Matrices.mat');
 init = [-pi/2  0   0   0]';
 
 % Simulation duration
-duration = 40;
+duration = 10;
 time_step = 1.0e-03;
 animationSpeed = 2;
 
 % Define the time vector of time for the system
-    time_array = 0:time_step:duration - time_step;
+time_array = 0:time_step:duration - time_step;
 
-    % Initializes the position, velocity and acceleration arrays
-    q1 = zeros(length(time_array),1);
-    q1(1) = init(1);
-    q2 = zeros(length(time_array),1);
-    q2(1) = init(2);
-    q1d = zeros(length(time_array),1);
-    q1dd = zeros(length(time_array),1);
-    q1d(1) = init(3);
-    q2d = zeros(length(time_array),1);
-    q2dd = zeros(length(time_array),1);
-    q2d(1) = init(4);
+% Initializes the position, velocity and acceleration arrays
+q1 = [init(1); zeros(length(time_array)-1,1)];
+q2 = [init(2); zeros(length(time_array)-1,1)];
+q1d = [init(3); zeros(length(time_array)-1,1)];
+q2d = [init(4); zeros(length(time_array)-1,1)];
+q1dd = zeros(length(time_array),1);
+q2dd = zeros(length(time_array),1);
+Torque = zeros(length(time_array),1);
     
-    Torque = zeros(length(time_array),1);
-    
-    aux = zeros(length(time_array),1);
-    control_action = zeros(length(time_array),1);
-    delta_angle = deg2rad(10);
-    
-    %acr.internal_controller = 'SwingUp';
+aux = zeros(length(time_array),1);
+control_action = zeros(length(time_array),1);
+delta_angle = deg2rad(10);
 
     for i= 2:1:length(time_array)
 
@@ -117,10 +110,10 @@ Plotter
 
 figure()
 subplot(4,1,1); 
-plot(time_array,mod(pos1,2*pi),'b',time_array,mod(pos2,2*pi) ,'r');
+plot(time_array,pos1,'b',time_array,mod(pos2,360) ,'r');
 title('Joints position')
 legend('q1','q2')
-ylim([min(min([pos1,pos2]))-100, max(max([pos1,pos2]))+100])
+%ylim([min(min([pos1,pos2]))-100, max(max([pos1,pos2]))+100])
 ylabel('deg','FontSize',16)
 
 subplot(4,1,2); 
@@ -152,7 +145,7 @@ subplot(2,1,1)
 plot(time_array,aux,'r')
 grid
 title('Control input v1')
-xlim([0 42])
+xlim([0 duration])
 ylim([min(aux)-1 max(aux)+1])
 
 subplot(2,1,2)
@@ -160,6 +153,6 @@ plot(time_array,control_action,'r')
 grid
 title('Controller type')
 legend('Active controller')
-xlim([0 40])
+xlim([0 duration])
 ylim([min(control_action)-1 max(control_action)+1])
 xlabel('Time (s)','FontSize',16)

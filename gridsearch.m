@@ -19,9 +19,9 @@ time_array = 0:time_step:duration - time_step;
 kappa=[];
 avg=[];
 
-for k=1:7
+for k=0.25:0.25:15
 	acr.kd1 = k;
-    for j=1:7
+    for j=0.25:0.25:15
 		acr.kp1 = j;
 		q1 = [init(1); zeros(length(time_array-1),1)];
     	q2 = [init(2); zeros(length(time_array-1),1)];
@@ -45,12 +45,17 @@ for k=1:7
             end
             %acr.internal_controller = 'SwingUp';
 
-
             %%{
+            M1bar = M(2,1)-M(2,2)\M(1,2)*M(1,1);
+            h1bar = C(2)-M(2,2)\M(1,2)*C(1);
+            phi1bar = G(2)-M(2,2)\M(1,2)*G(1);
+            %%}
+            
+            %{
             M1bar = M(2,1)-M(2,2)*(1/M(1,2))*M(1,1);
             h1bar = C(2)-M(2,2)*(1/M(1,2))*C(1);
             phi1bar = G(2)-M(2,2)*(1/M(1,2))*G(1);
-            %%}
+            %}
 
             if strcmp (acr.internal_controller, 'SwingUp')
                 v1 = -acr.kd1*q1d(i-1) + acr.kp1*(pi/2 - q1(i-1));

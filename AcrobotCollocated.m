@@ -15,31 +15,24 @@ time_step = 1.0e-03;
 animationSpeed = 2;
 
 % Define the time vector of time for the system
-    time_array = 0:time_step:duration - time_step;
+time_array = 0:time_step:duration - time_step;
 
-    % Initializes the position, velocity and acceleration arrays
-    q1 = zeros(length(time_array),1);
-    q1(1) = init(1);
-    q2 = zeros(length(time_array),1);
-    q2(1) = init(2);
-    q1d = zeros(length(time_array),1);
-    q1dd = zeros(length(time_array),1);
-    q1d(1) = init(3);
-    q2d = zeros(length(time_array),1);
-    q2dd = zeros(length(time_array),1);
-    q2d(1) = init(4);
+% Initializes the position, velocity and acceleration arrays
+q1 = [init(1); zeros(length(time_array)-1,1)];
+q2 = [init(2); zeros(length(time_array)-1,1)];
+q1d = [init(3); zeros(length(time_array)-1,1)];
+q2d = [init(4); zeros(length(time_array)-1,1)];
+q1dd = zeros(length(time_array),1);
+q2dd = zeros(length(time_array),1);
+Torque = zeros(length(time_array),1);
 
-    q2des = zeros(length(time_array),1);
+q2des = zeros(length(time_array),1);
+    
+aux = zeros(length(time_array),1);
+control_action = zeros(length(time_array),1);
+delta_angle = deg2rad(20);
+lqrvar = true;
 
-    Torque = zeros(length(time_array),1);
-    
-    aux = zeros(length(time_array),1);
-    control_action = zeros(length(time_array),1);
-    delta_angle = deg2rad(20);
-    lqrvar = true;
-    
-    %acr.internal_controller = 'SwingUp';
-    
     for i= 2:1:length(time_array)
 
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
@@ -160,7 +153,7 @@ plot(time_array,rad2deg(aux),'r')
 grid
 title('Feedback position error')
 legend('Feedback position error (q2des-q2)')
-xlim([0 42])
+xlim([0 duration])
 ylim([min(rad2deg(aux))-1 max(rad2deg(aux))+1])
 ylabel('deg/sec','FontSize',16)
 
@@ -169,6 +162,6 @@ plot(time_array,control_action,'r')
 grid
 title('Controller type')
 legend('Active controller')
-xlim([0 40])
+xlim([0 duration])
 ylim([min(control_action)-1 max(control_action)+1])
 xlabel('Time (s)','FontSize',16)
