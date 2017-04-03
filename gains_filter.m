@@ -11,18 +11,20 @@ SS = load('SS_Matrices.mat');
 init = [-pi/2  0   0   0]';
 
 % Simulation duration
-duration = 15;
+duration = 10;
 time_step = 1.0e-03;
 delta_angle = deg2rad(10);
 time_array = 0:time_step:duration - time_step;
 
 kappa=[];
 avg=[];
+data = load('kappa_filtered_inverse.mat');
 
-for k=0.25:0.25:1
-	acr.kd1 = k;
-    for j=0.25:0.25:1
-		acr.kp1 = j;
+
+for k=1:length(data.kappa(:,1))
+	acr.kd1 = data.kappa(k,1);
+    acr.kp1 = data.kappa(k,2);
+
 		q1 = [init(1); zeros(length(time_array-1),1)];
     	q2 = [init(2); zeros(length(time_array-1),1)];
     	q1d = [init(3); zeros(length(time_array-1),1)];
@@ -45,17 +47,17 @@ for k=0.25:0.25:1
             end
             %acr.internal_controller = 'SwingUp';
 
-            %%{
+            %{
             M1bar = M(2,1)-M(2,2)\M(1,2)*M(1,1);
             h1bar = C(2)-M(2,2)\M(1,2)*C(1);
             phi1bar = G(2)-M(2,2)\M(1,2)*G(1);
-            %%}
+            %}
             
-            %{
+            %%{
             M1bar = M(2,1)-M(2,2)*(1/M(1,2))*M(1,1);
             h1bar = C(2)-M(2,2)*(1/M(1,2))*C(1);
             phi1bar = G(2)-M(2,2)*(1/M(1,2))*G(1);
-            %}
+            %%}
 
             if strcmp (acr.internal_controller, 'SwingUp')
                 v1 = -acr.kd1*q1d(i-1) + acr.kp1*(pi/2 - q1(i-1));
@@ -86,20 +88,18 @@ for k=0.25:0.25:1
             q2(i) = q2(i-1) + q2d(i-1)*time_step;
         end
 
-        endlimit = 15000;
-        startlimit = 10000;
+        endlimit = 10000;
+        startlimit = 8000;
         avg(1) = mean(q1(startlimit:endlimit));
         avg(2) = mean(q1d(startlimit:endlimit));
         avg(3) = mean(q2d(startlimit:endlimit));
 
-        if(avg(2)<=2*pi && avg(2)>-2*pi && avg(3)<=2*pi && avg(3)>-2*pi )
-            if(max(q1d(startlimit:endlimit))<=2*pi && min(q1d(startlimit:endlimit))>-2*pi && max(q2d(startlimit:endlimit))<=2*pi && min(q2d(startlimit:endlimit))>-2*pi )
-                if(angle_normalizer(avg(1)) <= acr.goal + delta_angle && angle_normalizer(avg(1)) > acr.goal - delta_angle)
-                    kappa = [kappa;[k,j]]; % kd, kp
-                end
-            end
+        if(max(Torque) <= 8000 && min(Torque) >= -8000)
+            %if(max(q1d(startlimit:endlimit))<=2*pi && min(q1d(startlimit:endlimit))>-2*pi && max(q2d(startlimit:endlimit))<=2*pi && min(q2d(startlimit:endlimit))>-2*pi )
+            %    if(angle_normalizer(avg(1)) <= acr.goal + delta_angle && angle_normalizer(avg(1)) > acr.goal - delta_angle)
+                    kappa = [kappa;[acr.kd1,acr.kp1]]; % kd, kp
+            %    end
+            %end
         end
-    end
 end
 save('kappa.mat','kappa')
-

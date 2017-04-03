@@ -20,9 +20,14 @@ function [acr] = AcrobotParameters(type)
         acr.g0 = 9.8;
 
         % For link 1 linearization (noncollocated):
+        % NOTE: Best parameters for pseudoinverse case  kd1 = 1, kp1 = 5.
+        % Other values could be kd = 2, kp = 14
+        % NOTE: Best parameters for inverse case  kd1 = 1.25, kp1 = 5.
         acr.goal = pi/2;
-        acr.kd1 = 1.25; % 0.25
-        acr.kp1 = 5.5;   % 6.0
+        acr.kd1 = 1.25;
+        acr.kp1 = 5.5;
+        
+        
 
         % For link 2 linearization (collocated):
         acr.alpha = 1; % "pumping" angle
