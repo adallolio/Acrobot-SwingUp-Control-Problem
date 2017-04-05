@@ -5,16 +5,20 @@ acr = AcrobotParameters('num');
 SS = load('SS_Matrices.mat');
 [~, ~, ~, ~, K] = ComputesLQR(SS.AGeneric, SS.BGeneric);
 
+% Trajectory that the robot follows to arrive to the final configuration
+trajectory = deg2rad([-100, -95, -70, -80, -95, -115, -130, -115, -90, -85, -75,  -50, -75, -90, -120, -140, -150, -120, -90, -70, -50, -30, -10, -50, -90, -120, -160, -175, -150, -130 -110, -90 -70, -50, -30, -10, -30, -50, -90, -120, -150, -185, -200, -210, -220, -250, -280]);
+
 % Initial conditions:
 init = [-pi/2  0   0   0]';
 
 % Simulation duration
-duration = 10;
+duration = 15;
 time_step = 1.0e-03;
 animationSpeed = 2;
 
 % Define the time vector of time for the system
 time_array = 0:time_step:duration - time_step;
+ref = 0.1*sin(2*pi*time_array + 0).*exp((5/duration)*time_array);
 
 % Initializes the position, velocity and acceleration arrays
 q1 = [init(1); zeros(length(time_array)-1,1)];
@@ -27,52 +31,55 @@ Torque = zeros(length(time_array),1);
     
 aux = zeros(length(time_array),1);
 control_action = zeros(length(time_array),1);
-delta_angle = deg2rad(10);
+delta_angle = deg2rad(20);
+delta_angle_trajectory = deg2rad(5);
+count = 1;
+time_test = [];
 
     for i= 2:1:length(time_array)
 
         [M,C,G] = AcrobotDynamicsMatrices(acr,[q1(i-1),q2(i-1),q1d(i-1),q2d(i-1)]);
         
-        %aux(i-1) = M(1,2)^2-M(1,1)*M(2,2);
+        if (q1(i-1) <= acr.goal_trajectory + delta_angle_trajectory && q1(i-1) > acr.goal_trajectory - delta_angle_trajectory && count < length(trajectory))
+            if (time_array(i) > 5)
+                delta_angle_trajectory = deg2rad(10);
+            end
+            count = count+1;
+            acr.goal_trajectory = trajectory(count);
+            time_test = [time_test; time_array(i)];
+            disp(strcat('New control Point:  ',num2str(rad2deg(acr.goal_trajectory))));
+        end
         
         %if (angle_normalizer(q1(i-1)) < acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && angle_normalizer(q2(i-1)) < 2*delta_angle && angle_normalizer(q2(i-1))> -2*delta_angle)
-        if (angle_normalizer(q1(i-1)) <= acr.goal + delta_angle && angle_normalizer(q1(i-1)) > acr.goal - delta_angle && q2d(i-1)>=-6.28 && q2d(i-1)<6.28)
+        if (q1(i-1) <= acr.goal_trajectory + delta_angle && q1(i-1) > acr.goal_trajectory - delta_angle && q2d(i-1)>=-6.28 && q2d(i-1)<6.28 && count == length(trajectory))
             acr.internal_controller = 'LQR';
             control_action(i-1) = 1;
         else 
             acr.internal_controller = 'SwingUp';
             control_action(i-1) = -1;
         end
-        %acr.internal_controller = 'SwingUp';
+       %acr.internal_controller = 'SwingUp';
       
-        %%{
 		M1bar = M(2,1)-M(2,2)\M(1,2)*M(1,1);
         h1bar = C(2)-M(2,2)\M(1,2)*C(1);
         phi1bar = G(2)-M(2,2)\M(1,2)*G(1);
-        %%}
-        
-        %{
-        M1bar = M(2,1)-M(2,2)*(1/M(1,2))*M(1,1);
-        h1bar = C(2)-M(2,2)*(1/M(1,2))*C(1);
-        phi1bar = G(2)-M(2,2)*(1/M(1,2))*G(1);
-        %}
-        
+		  
         if strcmp (acr.internal_controller, 'SwingUp')
-            v1 = -acr.kd1*q1d(i-1) + acr.kp1*(pi/2 - q1(i-1));
-            aux(i-1) = v1;
+            v1 = -acr.kd1*q1d(i-1) + acr.kp1*(acr.goal_trajectory - q1(i-1));
+            aux(i-1) = ref(i-1);
             Torque(i-1) = M1bar*v1 + h1bar + phi1bar;
         else
             % This the desired value of q1 at equilibrium
-            state_vec =[q1(i-1)-pi/2, q2(i-1), q1d(i-1), q2d(i-1)]';
+            state_vec =[angle_normalizer(q1(i-1))-pi/2, q2(i-1), q1d(i-1), q2d(i-1)]';
             Torque(i-1) = -K*state_vec;
             
          end
         
         % Controls the torque saturation
-        if Torque(i-1)>acr.saturation_limit
-            Torque(i-1) = acr.saturation_limit;
-        elseif Torque(i-1)<-acr.saturation_limit;
-            Torque(i-1) = -acr.saturation_limit;
+        if Torque(i-1)>acr.saturation_trajectory_limit
+            Torque(i-1) = acr.saturation_trajectory_limit;
+        elseif Torque(i-1)<-acr.saturation_trajectory_limit;
+            Torque(i-1) = -acr.saturation_trajectory_limit;
         end
 
         q1dd(i-1) = (M(1,2)*(Torque(i-1)-C(2)-G(2))+M(2,2)*(C(1)+G(1)))/(M(1,2)^2-M(1,1)*M(2,2));
@@ -138,7 +145,7 @@ legend('Torque')
 xlabel('Time (s)','FontSize',16)
 ylabel('Nm','FontSize',16)
 
-
+%{
 figure()
 
 subplot(2,1,1)
@@ -156,3 +163,4 @@ legend('Active controller')
 xlim([0 duration])
 ylim([min(control_action)-1 max(control_action)+1])
 xlabel('Time (s)','FontSize',16)
+%}

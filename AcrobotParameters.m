@@ -22,13 +22,15 @@ function [acr] = AcrobotParameters(type)
         % For link 1 linearization (noncollocated):
         % NOTE: Best parameters for pseudoinverse case  kd1 = 1, kp1 = 5.
         % Other values could be kd = 2, kp = 14
-        % NOTE: Best parameters for inverse case  kd1 = 1.25, kp1 = 5.
+        % NOTE: Best parameters for inverse case  kd1 = 1.25, kp1 = 5.5
+        acr.kd1 = 1;
+        acr.kp1 = 5;
+        
+        % Goal position for q1, the goal trajectory is only used in the 
+        % NonColocated_trajectory project
+        acr.goal_trajectory = deg2rad(-85);
         acr.goal = pi/2;
-        acr.kd1 = 1.25;
-        acr.kp1 = 5.5;
-        
-        
-
+       
         % For link 2 linearization (collocated):
         acr.alpha = 1; % "pumping" angle
         acr.kd2 = 200;
@@ -72,7 +74,7 @@ function [acr] = AcrobotParameters(type)
     end
 
     acr.saturation_limit = 10000; % Actuator Saturation
-
+    acr.saturation_trajectory_limit = 100; % Saturation for the trajectory case
 end
 
 
