@@ -105,9 +105,11 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 % velocities and accelerations are plotted.
 %makeplot('pos1','pos2',time_array,zarray,animationSpeed,Torque,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
-Plotter
+%Plotter
 
 figure()
+set(gcf,'color','w');
+
 subplot(4,1,1); 
 plot(time_array,pos1,'b',time_array,pos2,'r')
 grid
@@ -140,6 +142,7 @@ xlabel('Time (s)','FontSize',16)
 ylabel('Nm','FontSize',16)
 
 figure()
+set(gcf,'color','w');
 
 subplot(3,1,1)
 plot(time_array,rad2deg(q2des),'r')
