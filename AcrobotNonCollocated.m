@@ -1,4 +1,4 @@
-clear all; close all; clc;
+%clear all; close all; clc;
 
 acr = AcrobotParameters('num'); 
 
@@ -15,6 +15,8 @@ animationSpeed = 2;
 
 % Define the time vector of time for the system
 time_array = 0:time_step:duration - time_step;
+
+traj = deg2rad(smooth_trajectory(time_array));
 
 % Initializes the position, velocity and acceleration arrays
 q1 = [init(1); zeros(length(time_array)-1,1)];
@@ -59,7 +61,14 @@ delta_angle = deg2rad(10);
         
         if strcmp (acr.internal_controller, 'SwingUp')
             v1 = -acr.kd1*q1d(i-1) + acr.kp1*(pi/2 - q1(i-1));
-            aux(i-1) = v1;
+            aux(i-1) = pi/2 - q1(i-1);
+            
+            %{
+            %% Activate this in order to follow a trajectory
+            v1 = -acr.kd1*q1d(i-1) + acr.kp1*(traj(i) - q1(i-1));
+            aux(i-1) = traj(i) - q1(i-1);
+            %}
+            
             Torque(i-1) = M1bar*v1 + h1bar + phi1bar;
         else
             % This the desired value of q1 at equilibrium
@@ -106,7 +115,7 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 % velocities and accelerations are plotted.
 %makeplot('pos1','pos2',time_array,zarray,animationSpeed,Torque,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
-%Plotter
+Plotter
 
 figure()
 set(gcf,'color','w');
@@ -159,3 +168,26 @@ legend('Active controller')
 xlim([0 duration])
 ylim([min(control_action)-1 max(control_action)+1])
 xlabel('Time (s)','FontSize',16)
+
+
+%{
+figure()
+set(gcf,'color','w');
+
+subplot(2,1,1); 
+plot(time_array,pos1,'b',time_array,mod(pos2,360) ,'r');
+grid
+title('Joints position')
+legend('q1','q2')
+%ylim([min(min([pos1,pos2]))-100, max(max([pos1,pos2]))+100])
+ylabel('deg','FontSize',16)
+
+
+subplot(2,1,2); 
+plot(time_array,torq,'r')
+grid
+title('Torque at second Joint')
+legend('Torque')
+xlabel('Time (s)','FontSize',16)
+ylabel('Nm','FontSize',16)
+%}

@@ -113,7 +113,7 @@ plotvec = [pos1,pos2,vel1,vel2,acc1,acc2];
 % velocities and accelerations are plotted.
 %makeplot('pos1','pos2',time_array,zarray,animationSpeed,Torque,acr,energy,pos1,pos2,vel1,vel2,acc1,acc2);
 
-%Plotter
+Plotter
 
 figure()
 set(gcf,'color','w');
@@ -146,6 +146,27 @@ title('Torque at second Joint')
 legend('Torque')
 xlabel('Time (s)','FontSize',16)
 ylabel('Nm','FontSize',16)
+
+%{
+figure()
+set(gcf,'color','w');
+
+subplot(2,1,1); 
+plot(time_array,pos1,'b',time_array,mod(pos2,360) ,'r');
+grid
+title('Joints position')
+legend('q1','q2')
+%ylim([min(min([pos1,pos2]))-100, max(max([pos1,pos2]))+100])
+ylabel('deg','FontSize',16)
+
+subplot(2,1,2); 
+plot(time_array,torq,'r')
+grid
+title('Torque at second Joint')
+legend('Torque')
+xlabel('Time (s)','FontSize',16)
+ylabel('Nm','FontSize',16)
+%}
 
 %{
 figure()
